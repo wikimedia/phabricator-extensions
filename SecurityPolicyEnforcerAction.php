@@ -63,24 +63,26 @@ class SecurityPolicyEnforcerAction extends HeraldCustomAction {
     switch ($field_value) {
       case 'ops-sensitive':
         $enforce = true;
-        $phid = $this->getProjectPHID('operations');
 
-        //operations group
-        $view_policy = $phid;
-        $edit_policy = $phid;
+        $project_phids = array($this->getProjectPHID('operations'));
 
-        $project_phids = array($phid);
+        $policy = $this->createCustomPolicy(
+          $task->getAuthorPHID(),
+          $project_phids);
 
+        $edit_policy = $view_policy = $policy->getPHID();
         break;
       case 'ops-access-request':
         $enforce = true;
 
         //operations group
-        $phid = $this->getProjectPHID('operations');
-        $view_policy = $phid;
-        $edit_policy = $phid;
+        $project_phids = array($this->getProjectPHID('operations'));
 
-        $project_phids = array($phid);
+        $policy = $this->createCustomPolicy(
+          $task->getAuthorPHID(),
+          $project_phids);
+
+        $edit_policy = $view_policy = $policy->getPHID();
 
         // Make this public task depend on a corresponding 'private task'
         $edge_type = PhabricatorEdgeConfig::TYPE_TASK_DEPENDS_ON_TASK;
@@ -129,7 +131,7 @@ class SecurityPolicyEnforcerAction extends HeraldCustomAction {
             ->addEdge(
               $task->getPHID(),
               $edge_type,
-              $private_task ->getPHID())
+              $private_task->getPHID())
             ->save();
         }
 
@@ -144,20 +146,22 @@ class SecurityPolicyEnforcerAction extends HeraldCustomAction {
         $enforce = true;
 
         //operations group
-        $phid = $this->getProjectPHID('security');
+        $project_phids = array($this->getProjectPHID('operations'));
+        $policy = $this->createCustomPolicy(
+          $task->getAuthorPHID(),
+          $project_phids);
 
-        $view_policy = $phid;
-        $edit_policy = $phid;
-
-        $project_phids = array($phid);
+        $edit_policy = $view_policy = $policy->getPHID();
 
         break;
       case 'security-bug':
-        $phid = $this->getProjectPHID('security');
-        //operations group
-        $view_policy = $phid;
-        $edit_policy = $phid;
-        $project_phids = array($phid);
+        $project_phids = array($this->getProjectPHID('security'));
+
+        $policy = $this->createCustomPolicy(
+          $task->getAuthorPHID(),
+          $project_phids);
+
+        $edit_policy = $view_policy = $policy->getPHID();
 
         break;
       default:
@@ -204,7 +208,7 @@ class SecurityPolicyEnforcerAction extends HeraldCustomAction {
   /**
    * look up a project by name
    */
-  function getProjectPHID($projectName) {
+  protected function getProjectPHID($projectName) {
     static $phids = array();
     if (isset($phids[$projectName])){
       return $phids[$projectName];
@@ -221,5 +225,31 @@ class SecurityPolicyEnforcerAction extends HeraldCustomAction {
 
     $phids[$projectName] = $project->getPHID();
     return $phids[$projectName];
+  }
+
+  protected function createCustomPolicy($user_phids, $project_phids) {
+      if (!is_array($user_phids)){
+        $user_phids = array($user_phids);
+      }
+      if (!is_array($project_phids)) {
+        $project_phids = array($project_phids);
+      }
+
+      $policy = id(new PhabricatorPolicy())
+        ->setRules(
+          array(
+            array(
+              'action' => PhabricatorPolicy::ACTION_ALLOW,
+              'rule' => 'PhabricatorPolicyRuleUsers',
+              'value' => $user_phids,
+            ),
+            array(
+              'action' => PhabricatorPolicy::ACTION_ALLOW,
+              'rule' => 'PhabricatorPolicyRuleProjects',
+              'value' => $project_phids,
+            ),
+          ))
+        ->save();
+      return $policy;
   }
 }
