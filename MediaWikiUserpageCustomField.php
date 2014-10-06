@@ -30,14 +30,14 @@ final class MediaWikiUserpageCustomField extends PhabricatorUserCustomField {
       return pht('Unknown');
     }
 
-    $uri = $account->getAccountURI();
+    $uri = urldecode($account->getAccountURI());
 
     // Split on the User: part of the userpage uri
     $name = explode('User:',$uri);
     // grab the part after User:
     $name = array_pop($name);
     // decode for display:
-    $name = urldecode($name);
+    $name = urldecode(rawurldecode($name));
 
     return phutil_tag(
       'a',
