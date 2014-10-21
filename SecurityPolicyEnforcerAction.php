@@ -57,6 +57,8 @@ class SecurityPolicyEnforcerAction extends HeraldCustomAction {
       }
     }
 
+    $project_phids_orig = array_fuse($task->getProjectPHIDs());
+
     // These case statements tie into field values set in the
     // maniphest custom fields key
     $enforce = true;
@@ -70,6 +72,7 @@ class SecurityPolicyEnforcerAction extends HeraldCustomAction {
           $task->getAuthorPHID(),
           $project_phids);
 
+
         $edit_policy = $view_policy = $policy->getPHID();
         break;
       case 'ops-access-request':
@@ -81,6 +84,7 @@ class SecurityPolicyEnforcerAction extends HeraldCustomAction {
         $policy = $this->createCustomPolicy(
           $task->getAuthorPHID(),
           $project_phids);
+
 
         $edit_policy = $view_policy = $policy->getPHID();
 
@@ -162,7 +166,6 @@ class SecurityPolicyEnforcerAction extends HeraldCustomAction {
           $project_phids);
 
         $edit_policy = $view_policy = $policy->getPHID();
-
         break;
       default:
         $enforce = false;
@@ -183,14 +186,21 @@ class SecurityPolicyEnforcerAction extends HeraldCustomAction {
         ->setNewValue($edit_policy);
       }
 
-      if ($project_phids) {
+      $project_phids = array_fuse($project_phids);
+      $project_count = count($project_phids_orig);
+      foreach($project_phids as $phid) {
+        $project_phids_orig[$phid]=$phid;
+      }
+
+      // if we added a project, record the change
+      if (count($project_phids_orig) > $project_count) {
         $project_type = PhabricatorProjectObjectHasProjectEdgeType::EDGECONST;
         $transactions[] = id(new ManiphestTransaction())
           ->setTransactionType(PhabricatorTransactions::TYPE_EDGE)
           ->setMetadataValue('edge:type', $project_type)
           ->setNewValue(
           array(
-            '=' => array_fuse($project_phids),
+            '=' => $project_phids_orig,
           ));
       }
 
@@ -199,9 +209,13 @@ class SecurityPolicyEnforcerAction extends HeraldCustomAction {
       }
     }
 
+    $applied = count($transactions) > 0
+             ? true
+             : false;
+
     return new HeraldApplyTranscript(
       $effect,
-      true,
+      $applied,
       pht('Set security policy'));
   }
 
