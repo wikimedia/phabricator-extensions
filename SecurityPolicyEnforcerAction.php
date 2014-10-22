@@ -191,7 +191,7 @@ class SecurityPolicyEnforcerAction extends HeraldCustomAction {
       $new_project_phids = array_diff($project_phids, $project_phids_orig);
 
       // if we added a project, record the change
-      if (count($project_phids_orig) > $project_count) {
+      if (count($new_project_phids)) {
         $transactions[] = id(new ManiphestTransaction())
           ->setTransactionType(PhabricatorTransactions::TYPE_EDGE)
           ->setMetadataValue(
