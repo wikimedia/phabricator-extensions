@@ -171,8 +171,9 @@ class SecurityPolicyEnforcerAction extends HeraldCustomAction {
         $enforce = false;
     }
 
+    $transactions = array();
+
     if ($enforce) {
-      $transactions = array();
 
       if ($view_policy !== null) {
         $transactions[] = id(new ManiphestTransaction())
@@ -187,20 +188,18 @@ class SecurityPolicyEnforcerAction extends HeraldCustomAction {
       }
 
       $project_phids = array_fuse($project_phids);
-      $project_count = count($project_phids_orig);
-      foreach($project_phids as $phid) {
-        $project_phids_orig[$phid]=$phid;
-      }
+      $new_project_phids = array_diff($project_phids, $project_phids_orig);
 
       // if we added a project, record the change
       if (count($project_phids_orig) > $project_count) {
-        $project_type = PhabricatorProjectObjectHasProjectEdgeType::EDGECONST;
         $transactions[] = id(new ManiphestTransaction())
           ->setTransactionType(PhabricatorTransactions::TYPE_EDGE)
-          ->setMetadataValue('edge:type', $project_type)
+          ->setMetadataValue(
+            'edge:type',
+            PhabricatorProjectObjectHasProjectEdgeType::EDGECONST)
           ->setNewValue(
           array(
-            '=' => $project_phids_orig,
+            '+' => array_fuse($new_project_phids),
           ));
       }
 
@@ -209,9 +208,7 @@ class SecurityPolicyEnforcerAction extends HeraldCustomAction {
       }
     }
 
-    $applied = count($transactions) > 0
-             ? true
-             : false;
+    $applied = count($transactions) > 0;
 
     return new HeraldApplyTranscript(
       $effect,
