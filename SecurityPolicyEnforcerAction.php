@@ -1,4 +1,6 @@
 <?php
+// @TODO: remove this file once the herald rule that uses it is removed
+// from production.
 
 class SecurityPolicyEnforcerAction extends HeraldCustomAction {
 
@@ -7,13 +9,10 @@ class SecurityPolicyEnforcerAction extends HeraldCustomAction {
   }
 
   public function appliesToRuleType($rule_type) {
-    switch ($rule_type) {
-      case HeraldRuleTypeConfig::RULE_TYPE_GLOBAL:
-        return true;
-      case HeraldRuleTypeConfig::RULE_TYPE_PERSONAL:
-      case HeraldRuleTypeConfig::RULE_TYPE_OBJECT:
-      default:
-        return false;
+    if ($rule_type == HeraldRuleTypeConfig::RULE_TYPE_GLOBAL) {
+      return true;
+    } else {
+      return false;
     }
   }
 
@@ -22,7 +21,7 @@ class SecurityPolicyEnforcerAction extends HeraldCustomAction {
   }
 
   public function getActionName() {
-    return "Ensure Security Task Policy Are Enforced";
+    return "Ensure Security Task Policies are Enforced";
   }
 
   public function getActionType() {
@@ -37,230 +36,67 @@ class SecurityPolicyEnforcerAction extends HeraldCustomAction {
     /** @var ManiphestTask */
     $task = $object;
 
-    $viewer = PhabricatorUser::getOmnipotentUser();
+    $is_new = $adapter->getIsNewObject();
 
-    $field_list = PhabricatorCustomField::getObjectFields(
-      $task,
-      PhabricatorCustomField::ROLE_EDIT);
+    // we set to true if/when we apply any effect
+    $applied = false;
 
-    $field_list
-      ->setViewer($viewer)
-      ->readFieldsFromStorage($task);
+    // This custom action is now a NOOP as the functionality has moved to
+    // SecurityPolicyListener.php
+    return new HeraldApplyTranscript($effect,$applied);
 
-    $field_value = null;
-    foreach ($field_list->getFields() as $field) {
-      $field_key = $field->getFieldKey();
 
-      if ($field_key == 'std:maniphest:security_topic') {
-        $field_value = $field->getValueForStorage();
-        break;
-      }
+    if ($is_new) {
+      // SecurityPolicyEventListener will take care of
+      // setting the policy for newly created tasks so
+      // this herald rule only needs to run on subsequent
+      // edits to secure tasks.
+      return new HeraldApplyTranscript($effect,$applied);
     }
+    $security_setting = WMFSecurityPolicy::getSecurityFieldValue($task);
+    $project = WMFSecurityPolicy::getSecurityProjectForTask($task);
+    // we only do something if this is a secure task
+    // if it's not a secure task then $project will be null
+    if ($project) {
+      $project_phids = array($project->getPHID());
 
-    $project_phids_orig = array_fuse($task->getProjectPHIDs());
+      // These policies are too-open and would allow anyone to view
+      // the protected task. We override these if someone tries to
+      // set them on a 'secure task'
+      $rejected_policies = array(
+        PhabricatorPolicies::POLICY_PUBLIC,
+        PhabricatorPolicies::POLICY_USER,
+      );
+      if (in_array($task->getViewPolicy(), $rejected_policies)
+        ||in_array($task->getEditPolicy(), $rejected_policies)) {
 
-    // These case statements tie into field values set in the
-    // maniphest custom fields key
-    $enforce = true;
-    switch ($field_value) {
-      case 'ops-sensitive':
-        $enforce = true;
+        $include_subscribers = ($security_setting == 'security-bug');
 
-        $project_phids = array($this->getProjectPHID('operations'));
-
-        $policy = $this->createCustomPolicy(
+        $view_policy = WMFSecurityPolicy::createCustomPolicy(
+          $task,
           $task->getAuthorPHID(),
-          $project_phids);
+          $project_phids,
+          $include_subscribers);
 
+        $edit_policy = $view_policy;
 
-        $edit_policy = $view_policy = $policy->getPHID();
-        break;
-      case 'ops-access-request':
-        $enforce = true;
-
-        //operations group
-        $project_phids = array($this->getProjectPHID('operations'));
-
-        $policy = $this->createCustomPolicy(
-          $task->getAuthorPHID(),
-          $project_phids);
-
-
-        $edit_policy = $view_policy = $policy->getPHID();
-
-        // Make this public task depend on a corresponding 'private task'
-        $edge_type = PhabricatorEdgeConfig::TYPE_TASK_DEPENDS_ON_TASK;
-
-        // First check for a pre-existant 'private task':
-        $preexisting_tasks = PhabricatorEdgeQuery::loadDestinationPHIDs(
-          $task->getPHID(),
-          $edge_type);
-
-        // if there isn't already a 'private task', create one:
-        if (!count($preexisting_tasks)) {
-          $oid = $task->getID();
-          $user = id(new PhabricatorPeopleQuery())
-            ->setViewer(PhabricatorUser::getOmnipotentUser())
-            ->withUsernames(array('admin'))
-            ->executeOne();
-
-          $private_task = ManiphestTask::initializeNewTask($viewer);
-          $private_task->setViewPolicy($view_policy)
-                     ->setEditPolicy($edit_policy)
-                     ->setTitle("ops access request: {$oid}")
-                     ->setAuthorPHID($user->getPHID())
-                     ->attachProjectPHIDs($project_phids)
-                     ->save();
-
-          $project_type = PhabricatorProjectObjectHasProjectEdgeType::EDGECONST;
-          $transactions[] = id(new ManiphestTransaction())
-            ->setTransactionType(PhabricatorTransactions::TYPE_EDGE)
-            ->setMetadataValue('edge:type', $project_type)
-            ->setNewValue(
-            array(
-              '=' => array_fuse($project_phids),
-            ));
-
-          // TODO: This should be transactional now.
-          $edge_editor = id(new PhabricatorEdgeEditor());
-
-          foreach($project_phids as $project_phid) {
-            $edge_editor->addEdge(
-              $private_task->getPHID(),
-              $project_type,
-              $project_phid);
-          }
-
-          $edge_editor
-            ->addEdge(
-              $task->getPHID(),
-              $edge_type,
-              $private_task->getPHID())
-            ->save();
-        }
-
-        // we already set the security policy on the 'private task' but
-        // not this task. Now reset the policy vars to avoid making the
-        // 'public task' be private.
-        $view_policy = null;
-        $edit_policy = null;
-
-        break;
-      case 'sensitive':
-        $enforce = true;
-
-        //operations group
-        $project_phids = array($this->getProjectPHID('operations'));
-        $policy = $this->createCustomPolicy(
-          $task->getAuthorPHID(),
-          $project_phids);
-
-        $edit_policy = $view_policy = $policy->getPHID();
-
-        break;
-      case 'security-bug':
-        $project_phids = array($this->getProjectPHID('security'));
-
-        $policy = $this->createCustomPolicy(
-          $task->getAuthorPHID(),
-          $project_phids);
-
-        $edit_policy = $view_policy = $policy->getPHID();
-        break;
-      default:
-        $enforce = false;
-    }
-
-    $transactions = array();
-
-    if ($enforce) {
-
-      if ($view_policy !== null) {
-        $transactions[] = id(new ManiphestTransaction())
+        $adapter->queueTransaction(id(new ManiphestTransaction())
           ->setTransactionType(PhabricatorTransactions::TYPE_VIEW_POLICY)
-          ->setNewValue($view_policy);
-      }
-
-      if ($edit_policy !== null) {
-        $transactions[] = id(new ManiphestTransaction())
+          ->setNewValue($view_policy->getPHID()));
+        $adapter->queueTransaction(id(new ManiphestTransaction())
           ->setTransactionType(PhabricatorTransactions::TYPE_EDIT_POLICY)
-        ->setNewValue($edit_policy);
+          ->setNewValue($edit_policy->getPHID()));
+        $applied = true;
       }
 
-      $project_phids = array_fuse($project_phids);
-      $new_project_phids = array_diff($project_phids, $project_phids_orig);
-
-      // if we added a project, record the change
-      if (count($new_project_phids)) {
-        $transactions[] = id(new ManiphestTransaction())
-          ->setTransactionType(PhabricatorTransactions::TYPE_EDGE)
-          ->setMetadataValue(
-            'edge:type',
-            PhabricatorProjectObjectHasProjectEdgeType::EDGECONST)
-          ->setNewValue(
-          array(
-            '+' => array_fuse($new_project_phids),
-          ));
-      }
-
-      foreach ($transactions as $transaction) {
-        $adapter->queueTransaction($transaction);
-      }
     }
-
-    $applied = count($transactions) > 0;
 
     return new HeraldApplyTranscript(
       $effect,
       $applied,
-      pht('Set security policy'));
+      pht('Reset security policy'));
   }
 
-  /**
-   * look up a project by name
-   */
-  protected function getProjectPHID($projectName) {
-    static $phids = array();
-    if (isset($phids[$projectName])){
-      return $phids[$projectName];
-    }
 
-    $query = new PhabricatorProjectQuery();
-    $project = $query->setViewer(PhabricatorUser::getOmnipotentUser())
-                     ->withNames(array($projectName))
-                     ->executeOne();
 
-    if (!$project) {
-      return null;
-    }
-
-    $phids[$projectName] = $project->getPHID();
-    return $phids[$projectName];
-  }
-
-  protected function createCustomPolicy($user_phids, $project_phids) {
-      if (!is_array($user_phids)){
-        $user_phids = array($user_phids);
-      }
-      if (!is_array($project_phids)) {
-        $project_phids = array($project_phids);
-      }
-
-      $policy = id(new PhabricatorPolicy())
-        ->setRules(
-          array(
-            array(
-              'action' => PhabricatorPolicy::ACTION_ALLOW,
-              'rule' => 'PhabricatorPolicyRuleUsers',
-              'value' => $user_phids,
-            ),
-            array(
-              'action' => PhabricatorPolicy::ACTION_ALLOW,
-              'rule' => 'PhabricatorPolicyRuleProjects',
-              'value' => $project_phids,
-            ),
-          ))
-        ->save();
-      return $policy;
-  }
 }
