@@ -12,7 +12,7 @@ final class MediaWikiUserpageCustomField extends PhabricatorUserCustomField {
   }
 
   public function getFieldName() {
-    return pht("MediaWiki Userpage");
+    return pht("MediaWiki User");
   }
 
   public function getFieldValue() {
