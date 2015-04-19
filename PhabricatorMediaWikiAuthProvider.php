@@ -151,15 +151,18 @@ final class PhabricatorMediaWikiAuthProvider
 
     if (!count($errors)) {
       $config = $this->getProviderConfig();
+      $config->setProviderDomain($values[$key_name]);
+      $config->setProperty($key_name, $values[$key_name]);
       if ($is_setup) {
-        $config->setProviderDomain($values[$key_name]);
-        $config->setProperty($key_name, $values[$key_name]);
+
+
         $config->setProperty($key_uri, $values[$key_uri]);
       } else {
         $config->setProperty($key_uri, $values[$key_uri]);
         $config->setProperty($key_secret, $values[$key_secret]);
         $config->setProperty($key_consumer, $values[$key_consumer]);
       }
+      $config->save();
     }
     return array($errors, $issues, $values);
   }
@@ -205,12 +208,13 @@ final class PhabricatorMediaWikiAuthProvider
             ->setName(self::PROPERTY_MEDIAWIKI_NAME)
             ->setError($e_name));
     } else {
-      $form
-        ->appendChild(
-          id(new AphrontFormStaticControl())
+      $form->appendChild(
+          id(new AphrontFormTextControl())
             ->setLabel(pht('MediaWiki Instance Name'))
             ->setValue($v_name)
-            ->setName(self::PROPERTY_MEDIAWIKI_NAME));
+            ->setName(self::PROPERTY_MEDIAWIKI_NAME)
+            ->setDisabled(true)
+            ->setError($e_name));
     }
 
     $form

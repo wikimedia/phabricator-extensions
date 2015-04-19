@@ -9,6 +9,7 @@ final class PhutilMediaWikiAuthAdapter
   private $userinfo;
   private $domain = '';
   private $mediaWikiBaseURI = '';
+  private $callback_uri = '';
 
   public function getWikiPageURI($title, $query_params = null) {
     $uri = $this->mediaWikiBaseURI;
@@ -19,11 +20,11 @@ final class PhutilMediaWikiAuthAdapter
       $query_params = array();
     }
     $query_params['title'] = $title;
-    return $uri.'index.php?'.
+    return rawurldecode( $uri.'index.php?'.
         http_build_query(
           $query_params,
           '',
-          '&');
+          '&'));
   }
 
   public function getAccountID() {
@@ -38,7 +39,7 @@ final class PhutilMediaWikiAuthAdapter
   public function getAccountURI() {
     $name = $this->getAccountName();
     if (strlen($name)) {
-      return $this->getWikiPageURI('User:'.urlencode($name));
+      return $this->getWikiPageURI('User:'.$name);
     }
     return null;
   }
@@ -64,7 +65,11 @@ final class PhutilMediaWikiAuthAdapter
   /* mediawiki oauth needs the callback uri to be "oob"
    (out of band callback) */
   public function getCallbackURI() {
-    return 'oob';
+    return $this->callback_uri;
+  }
+
+  public function setCallbackURI($uri) {
+    $this->callback_uri = $uri;
   }
 
   public function shouldAddCSRFTokenToCallbackURI() {
@@ -72,8 +77,9 @@ final class PhutilMediaWikiAuthAdapter
   }
 
   protected function getRequestTokenURI() {
+    $callback = $this->getCallbackURI();
     return $this->getWikiPageURI('Special:OAuth/initiate',
-                  array('oauth_callback' => 'oob'));
+                  array('oauth_callback' => $callback));
   }
 
   protected function getAuthorizeTokenURI() {
@@ -118,7 +124,6 @@ final class PhutilMediaWikiAuthAdapter
 
   protected function willProcessTokenRequestResponse($body) {
     if (substr_count($body, 'Error:') > 0) {
-      phlog('OAuth provider returned error in response body: '.$body);
       throw new Exception(
         pht('OAuth provider returned an error response.'));
     }
