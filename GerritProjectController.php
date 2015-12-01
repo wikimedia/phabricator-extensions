@@ -1314,8 +1314,40 @@ class GerritProjectController extends PhabricatorController {
         if (!isset(self::$projects[$project])) {
             return new Aphront404Response();
         }
-        return id(new AphrontRedirectResponse())
-                ->setURI('/diffusion/'.self::$projects[$project].'/');
+        $CALLSIGN = self::$projects[$project];
+
+        if ($data['action'] == 'branch') {
+            if (!isset($data['branch'])){
+                return new Aphront404Response();
+            }
+            $branch = $data['branch'];
+            return id(new AphrontRedirectResponse())
+                ->setURI("/diffusion/$CALLSIGN/history/$branch/");
+        }
+        if ($data['action'] == 'browse') {
+            if (!isset($data['branch']) || !isset($data['file'])) {
+                return new Aphront404Response();
+            }
+            $branch = $data['branch'];
+            $file = $data['file'];
+            return id(new AphrontRedirectResponse())
+                ->setURI("/diffusion/$CALLSIGN/browse/$branch/$file");
+        }
+        if ($data['action'] == 'revision') {
+            $sha = isset($data['sha'])
+                 ? $data['sha']
+                 : $data['branch'];
+            return id(new AphrontRedirectResponse())
+                ->setURI('/r' . $CALLSIGN . $sha);
+        }
+
+        if ($data['action'] == 'project') {
+            return id(new AphrontRedirectResponse())
+                ->setURI("/diffusion/$CALLSIGN/");
+        }
+        phlog('did not match any repository redirect action');
+        return new Aphront404Response();
+
   }
 
 }

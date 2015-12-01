@@ -1,7 +1,7 @@
 <?php
 
 final class GerritApplication extends PhabricatorApplication {
-
+  protected static $routes;
   public function getName() {
     return pht('Gerrit');
   }
@@ -19,7 +19,37 @@ final class GerritApplication extends PhabricatorApplication {
   }
 
   public function getRoutes() {
-    return array('/r/(?:(?P<gerritProject>.*)/)' => 'GerritProjectController');
+    if (count(self::$routes) > 0) {
+      return self::$routes;
+    }
+/*
+The following routes correspond the following gerrit [gitweb] config:
+
+[gitweb]
+    url = https://git.wikimedia.org
+    type = custom
+    revision = /r/revision/${project};${commit}
+    project = /r/project/${project}
+    branch = /r/branch/${project};${branch}
+    filehistory = /r/browse/${project};${branch};${file}
+    linkname = gitblit
+    linkDrafts = false
+*/
+
+    $routes = array(
+      // filehistory
+      '/r/(?P<action>[a-z]+)/(?P<gerritProject>[^:]+);(?P<branch>[^;]+);(?P<file>[^;]+)',
+      // branch
+      '/r/(?P<action>[a-z]+)/(?P<gerritProject>[^;]+);(?P<branch>[^;]+)',
+      // commit
+      '/r/(?P<action>[a-z]+)/(?P<gerritProject>[^;]+);(?P<sha>[0-9a-z]+)',
+      // project
+      '/r/(?P<action>[a-z]+)/(?:(?P<gerritProject>[^;]+)/)',
+    );
+
+    self::$routes = array_fill_keys($routes, 'GerritProjectController');
+
+    return self::$routes;
   }
 
 }
