@@ -28,12 +28,13 @@ The following routes correspond the following gerrit [gitweb] config:
 [gitweb]
     url = https://git.wikimedia.org
     type = custom
-    revision = /r/revision/${project};${commit}
+    revision = "/r/revision/${project};${commit}"
     project = /r/project/${project}
-    branch = /r/branch/${project};${branch}
-    filehistory = /r/browse/${project};${branch};${file}
-    linkname = gitblit
+    branch = "/r/branch/${project};${branch}"
+    filehistory = "/r/browse/${project};${branch};${file}"
+    linkname = diffusion
     linkDrafts = false
+    urlEncode = false
 */
 
     $routes = array(

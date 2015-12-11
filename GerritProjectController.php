@@ -1322,7 +1322,7 @@ class GerritProjectController extends PhabricatorController {
             }
             $branch = $data['branch'];
             return id(new AphrontRedirectResponse())
-                ->setURI("/diffusion/$CALLSIGN/history/$branch/");
+                ->setURI("/diffusion/$CALLSIGN/browse/$branch/");
         }
         if ($data['action'] == 'browse') {
             if (!isset($data['branch']) || !isset($data['file'])) {
