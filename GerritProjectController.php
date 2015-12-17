@@ -1321,6 +1321,10 @@ class GerritProjectController extends PhabricatorController {
                 return new Aphront404Response();
             }
             $branch = $data['branch'];
+            $branch = str_replace('refs/heads','', $branch);
+            $branch = trim($branch, '/');
+            $branch = urlencode($branch);
+
             return id(new AphrontRedirectResponse())
                 ->setURI("/diffusion/$CALLSIGN/browse/$branch/");
         }
