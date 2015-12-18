@@ -1327,9 +1327,13 @@ class GerritProjectController extends PhabricatorController {
             $branch = str_replace('HEAD', '');
             // double encode any forward slashes in ref.
             $branch = str_replace('/', '%252F', $branch);
-
-            return id(new AphrontRedirectResponse())
-                ->setURI("/diffusion/$CALLSIGN/browse/$branch/");
+            if (strlen($branch)==0){
+                  return id(new AphrontRedirectResponse())
+                        ->setURI("/diffusion/$CALLSIGN/browse/");
+            } else {
+                  return id(new AphrontRedirectResponse())
+                        ->setURI("/diffusion/$CALLSIGN/browse/$branch/");
+            }
         }
         if ($data['action'] == 'browse') {
             if (!isset($data['branch']) || !isset($data['file'])) {
