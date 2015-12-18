@@ -1324,10 +1324,10 @@ class GerritProjectController extends PhabricatorController {
             // get rid of refs/heads prefix
             $branch = str_replace('refs/heads', '', $branch);
             $branch = trim($branch, '/');
-            $branch = str_replace('HEAD', '');
+            $branch = str_replace('HEAD', '', $branch);
             // double encode any forward slashes in ref.
             $branch = str_replace('/', '%252F', $branch);
-            if (strlen($branch)==0){
+            if (strlen($branch)==0) {
                   return id(new AphrontRedirectResponse())
                         ->setURI("/diffusion/$CALLSIGN/browse/");
             } else {
