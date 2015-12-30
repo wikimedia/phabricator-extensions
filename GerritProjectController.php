@@ -1359,6 +1359,9 @@ class GerritProjectController extends PhabricatorController {
         phlog('did not match any repository redirect action');
         return new Aphront404Response();
 
-  }
+    }
 
+    public function shouldAllowPublic() {
+        return true;
+    }
 }
