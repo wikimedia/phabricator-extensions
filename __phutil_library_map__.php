@@ -11,10 +11,10 @@ phutil_register_library_map(array(
   'class' => array(
     'CustomLoginHandler' => 'src/CustomLoginHandler.php',
     'GerritApplication' => 'src/GerritApplication.php',
+    'GerritChangeIdField' => 'src/GerritChangeIdField.php',
     'GerritProjectController' => 'src/GerritProjectController.php',
     'LDAPUserpageCustomField' => 'src/LDAPUserpageCustomField.php',
     'MediaWikiUserpageCustomField' => 'src/MediaWikiUserpageCustomField.php',
-    'PhabricatorCommitChangeIDField' => 'src/PhabricatorCommitChangeIdField.php',
     'PhabricatorMediaWikiAuthProvider' => 'src/PhabricatorMediaWikiAuthProvider.php',
     'PhutilMediaWikiAuthAdapter' => 'src/PhutilMediaWikiAuthAdapter.php',
   ),
@@ -22,10 +22,10 @@ phutil_register_library_map(array(
   'xmap' => array(
     'CustomLoginHandler' => 'PhabricatorAuthLoginHandler',
     'GerritApplication' => 'PhabricatorApplication',
+    'GerritChangeIdField' => 'PhabricatorCommitCustomField',
     'GerritProjectController' => 'PhabricatorController',
     'LDAPUserpageCustomField' => 'PhabricatorUserCustomField',
     'MediaWikiUserpageCustomField' => 'PhabricatorUserCustomField',
-    'PhabricatorCommitChangeIDField' => 'PhabricatorCommitCustomField',
     'PhabricatorMediaWikiAuthProvider' => 'PhabricatorOAuth1AuthProvider',
     'PhutilMediaWikiAuthAdapter' => 'PhutilOAuth1AuthAdapter',
   ),
