@@ -1525,7 +1525,7 @@ class GerritProjectController extends PhabricatorController {
 
 	final public function handleRequest(AphrontRequest $request) {
 		$data = $request->getURIMap();
-		$project = $data['gerritProject'];
+		$project = preg_replace('/\.git$/', '', $data['gerritProject']);
 
 		if (!isset(self::$projects[$project])) {
 			return new Aphront404Response();
