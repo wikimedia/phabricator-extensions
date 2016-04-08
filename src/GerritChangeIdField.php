@@ -49,7 +49,7 @@ final class GerritChangeIdField
     return $this;
   }
 
-  public function readValueFromObject($object) {
+  public function readValueFromObject(PhabricatorCustomFieldInterface $object) {
     $data = $object->getCommitData();
     $message = $data->getCommitMessage();
     $message = explode("\n", $message);
@@ -61,6 +61,7 @@ final class GerritChangeIdField
         break;
       }
     }
+    return $this;
   }
 
   public function readValueFromRequest(AphrontRequest $request) {
