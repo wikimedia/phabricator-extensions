@@ -8,6 +8,12 @@ final class PhabricatorMediaWikiAuthProvider
   const PROPERTY_PRIVATE_KEY = 'oauth1:mediawiki:key:private';
   const PROPERTY_PUBLIC_KEY = 'oauth1:mediawiki:key:public';
 
+  public function getProviderConfig() {
+      $config = parent::getProviderConfig();
+      $config->setProviderType('mediawiki');
+      return $config;
+  }
+
   public function readFormValuesFromProvider() {
     $config = $this->getProviderConfig();
     return array(
