@@ -50,16 +50,20 @@ final class GerritChangeIdField
   }
 
   public function readValueFromObject(PhabricatorCustomFieldInterface $object) {
-    $data = $object->getCommitData();
-    $message = $data->getCommitMessage();
-    $message = explode("\n", $message);
-    for ($i=count($message)-1; $i > 0; $i--) {
-      $field = explode(": ", $message[$i]);
-      if ($field[0] == 'Change-Id') {
-        $value = trim($field[1]);
-        $this->setValue($value);
-        break;
+    try {
+      $data = $object->getCommitData();
+      $message = $data->getCommitMessage();
+      $message = explode("\n", $message);
+      for ($i=count($message)-1; $i > 0; $i--) {
+        $field = explode(": ", $message[$i]);
+        if ($field[0] == 'Change-Id') {
+          $value = trim($field[1]);
+          $this->setValue($value);
+          break;
+        }
       }
+    } catch (Exception $ex) {
+      // ignore failures...
     }
     return $this;
   }
