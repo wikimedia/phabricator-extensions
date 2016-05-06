@@ -10,6 +10,7 @@ phutil_register_library_map(array(
   '__library_version__' => 2,
   'class' => array(
     'CustomLoginHandler' => 'src/CustomLoginHandler.php',
+    'DifferentialApplyPatchWithOnlyGitField' => 'src/DifferentialApplyPatchWithOnlyGitField.php',
     'GerritApplication' => 'src/GerritApplication.php',
     'GerritChangeIdField' => 'src/GerritChangeIdField.php',
     'GerritProjectController' => 'src/GerritProjectController.php',
@@ -22,6 +23,7 @@ phutil_register_library_map(array(
   'function' => array(),
   'xmap' => array(
     'CustomLoginHandler' => 'PhabricatorAuthLoginHandler',
+    'DifferentialApplyPatchWithOnlyGitField' => 'DifferentialCustomField',
     'GerritApplication' => 'PhabricatorApplication',
     'GerritChangeIdField' => 'PhabricatorCommitCustomField',
     'GerritProjectController' => 'PhabricatorController',
