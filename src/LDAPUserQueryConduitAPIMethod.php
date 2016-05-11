@@ -29,45 +29,35 @@ final class LDAPUserQueryConduitAPIMethod extends UserConduitAPIMethod {
   }
 
   protected function execute(ConduitAPIRequest $request) {
-    $usernames   = array();
     $ldapnames   = $request->getValue('ldapnames', array());
-    $emails      = array();
-    $realnames   = array();
     $phids       = array();
-    $ids         = array();
     $offset      = $request->getValue('offset',    0);
     $limit       = $request->getValue('limit',     100);
-
+    $phid_name   = array();
     if (count($ldapnames)) {
       $ldap_accounts = id(new PhabricatorExternalAccount())->loadAllWhere(
         'accountType = %s AND username IN (%Ls)',
         'ldap', $ldapnames);
       foreach($ldap_accounts as $account) {
-        $phids[] = $account->getUserPHID();
+        $phid = $account->getUserPHID();
+        $phid_name[$phid] = $account->getUsername();
       }
-      $phids = array_unique($phids);
+      $phids = array_keys($phid_name);
+    }
+
+    if (!count($phids)) {
+      throw id(new ConduitException('ERR-INVALID-PARAMETER'))
+        ->setErrorDescription(
+          pht('Unknown or missing ldap names: %s',
+              implode(', ', $ldapnames)));
     }
 
     $query = id(new PhabricatorPeopleQuery())
       ->setViewer($request->getUser())
+      ->withPHIDs($phids)
       ->needProfileImage(true)
       ->needAvailability(true);
 
-    if ($usernames) {
-      $query->withUsernames($usernames);
-    }
-    if ($emails) {
-      $query->withEmails($emails);
-    }
-    if ($realnames) {
-      $query->withRealnames($realnames);
-    }
-    if ($phids) {
-      $query->withPHIDs($phids);
-    }
-    if ($ids) {
-      $query->withIDs($ids);
-    }
     if ($limit) {
       $query->setLimit($limit);
     }
@@ -78,10 +68,13 @@ final class LDAPUserQueryConduitAPIMethod extends UserConduitAPIMethod {
 
     $results = array();
     foreach ($users as $user) {
-      $results[] = $this->buildUserInformationDictionary(
+      $user_info = $this->buildUserInformationDictionary(
         $user,
         $with_email = false,
         $with_availability = true);
+      $phid = $user_info['phid'];
+      $user_info['ldap_username'] = $phid_name[$phid];
+      $results[] = $user_info;
     }
     return $results;
   }
