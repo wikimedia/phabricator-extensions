@@ -46,6 +46,7 @@ The following routes correspond the following gerrit [gitweb] config:
       '/r/(?P<action>[a-z]+)/(?P<gerritProject>[^;]+);(?P<sha>[0-9a-z]+)',
       // project
       '/r/(?P<action>[a-z]+)/(?:(?P<gerritProject>[^;]+)/)',
+      '/r/',
     );
 
     self::$routes = array_fill_keys($routes, 'GerritProjectController');
