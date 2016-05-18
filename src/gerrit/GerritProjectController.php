@@ -7,10 +7,7 @@ class GerritProjectController extends PhabricatorController {
 
 		$project = preg_replace('/\.git$/', '', $data['gerritProject']);
 
-
-
 		if (!isset(GerritProjectMap::$projects[$project])) {
-			$notFoundMessage =
 			$list_controller = new GerritProjectListController();
 			return $list_controller->showProjectList($request,
 								pht("The requested project does not exist"));
