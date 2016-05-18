@@ -1,6 +1,10 @@
 <?php
 class GerritProjectListController extends GerritProjectController {
 
+  public function handleRequest(AphrontRequest $request) {
+    return $this->showProjectList($request);
+  }
+
   function assignArrayByPath(&$arr, $path, $callsign) {
       $keys = explode('/', $path);
       //$keys[] = '.';

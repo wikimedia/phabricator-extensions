@@ -2,18 +2,18 @@
 
 class GerritProjectController extends PhabricatorController {
 
-	final public function handleRequest(AphrontRequest $request) {
+	public function handleRequest(AphrontRequest $request) {
 		$data = $request->getURIMap();
-    if (!isset($data['gerritProject'])) {
-      return $this->showProjectList($request);
-    }
+
 		$project = preg_replace('/\.git$/', '', $data['gerritProject']);
 
-    $notFoundMessage = pht("The requested project does not exist");
+
 
 		if (!isset(GerritProjectMap::$projects[$project])) {
+			$notFoundMessage =
 			$list_controller = new GerritProjectListController();
-			return $list_controller->showProjectList($request, $notFoundMessage);
+			return $list_controller->showProjectList($request,
+								pht("The requested project does not exist"));
 		}
 		$CALLSIGN = GerritProjectMap::$projects[$project];
 
