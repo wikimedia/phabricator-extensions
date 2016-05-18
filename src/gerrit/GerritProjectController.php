@@ -11,6 +11,10 @@ class GerritProjectController extends PhabricatorController {
 
     $notFoundMessage = pht("The requested project does not exist");
 
+		if (!isset(GerritProjectMap::$projects[$project])) {
+			$list_controller = new GerritProjectListController();
+			return $list_controller->showProjectList($request, $notFoundMessage);
+		}
 		$CALLSIGN = GerritProjectMap::$projects[$project];
 
 		if ($data['action'] == 'branch') {
