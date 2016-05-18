@@ -7,7 +7,7 @@ class GerritProjectListController extends GerritProjectController {
 
   function assignArrayByPath(&$arr, $path, $callsign) {
       $keys = explode('/', $path);
-      //$keys[] = '.';
+
       $temp = &$arr;
       foreach($keys as $key) {
           if (!isset($temp[$key])) {
@@ -17,11 +17,9 @@ class GerritProjectListController extends GerritProjectController {
           }
           $temp = &$temp[$key];
       }
-      //if (!is_array($temp)) {
+
       $key = end($keys);
       $temp[$key] = phutil_tag('a', array('href'=>"/diffusion/$callsign", 'title'=>$path), "($callsign) " . $path);
-      //}
-      //$temp = $callsign;
   }
 
   function arrayToUl($arr, $path='', $depth=1) {
@@ -64,8 +62,13 @@ class GerritProjectListController extends GerritProjectController {
     $page->setBaseURI('/r/');
     $page->setTitle(pht('Gerrit Projects'));
     $page->setDeviceReady(true);
+    if ($message !== "") {
+      $message = id(new PHUIInfoView())
+                  ->setTitle($message)
+                  ->setSeverity(PHUIInfoView::SEVERITY_NODATA);
+    }
 
-    $page->appendChild(array($crumbs, $view));
+    $page->appendChild(array($crumbs, $message, $view));
 
     $response = new AphrontWebpageResponse();
     return $response->setContent($page->render());

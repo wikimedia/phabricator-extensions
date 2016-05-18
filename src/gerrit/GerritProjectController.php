@@ -9,6 +9,7 @@ class GerritProjectController extends PhabricatorController {
 
 		if (!isset(GerritProjectMap::$projects[$project])) {
 			$list_controller = new GerritProjectListController();
+			$list_controller->setRequest($request);
 			return $list_controller->showProjectList($request,
 								pht("The requested project does not exist"));
 		}
