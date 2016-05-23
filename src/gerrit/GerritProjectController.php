@@ -34,6 +34,14 @@ class GerritProjectController extends PhabricatorController {
 						->setURI("/diffusion/$CALLSIGN/browse/$branch/");
 			}
 		}
+		if ($data['action'] == 'history') {
+			if (!isset($data['branch'])) {
+				return new Aphront404Response();
+			}
+			$branch = $data['branch'];
+			return id(new AphrontRedirectResponse())
+				->setURI("/diffusion/$CALLSIGN/history/$branch");
+		}
 		if ($data['action'] == 'browse') {
 			if (!isset($data['branch']) || !isset($data['file'])) {
 				return new Aphront404Response();
