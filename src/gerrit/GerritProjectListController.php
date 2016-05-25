@@ -6,20 +6,20 @@ class GerritProjectListController extends GerritProjectController {
   }
 
   function assignArrayByPath(&$arr, $path, $callsign) {
-      $keys = explode('/', $path);
+    $keys = explode('/', $path);
 
-      $temp = &$arr;
-      foreach($keys as $key) {
-          if (!isset($temp[$key])) {
-            $temp[$key] = array();
-          } else if (!is_array($temp[$key])) {
-            $temp[$key] = array($temp[$key]);
-          }
-          $temp = &$temp[$key];
+    $temp = &$arr;
+    foreach($keys as $key) {
+      if (!isset($temp[$key])) {
+        $temp[$key] = array();
+      } else if (!is_array($temp[$key])) {
+        $temp[$key] = array($temp[$key]);
       }
+      $temp = &$temp[$key];
+    }
 
-      $key = end($keys);
-      $temp[$key] = phutil_tag('a', array('href'=>"/diffusion/$callsign", 'title'=>$path), "($callsign) " . $path);
+    $key = end($keys);
+    $temp[$key] = phutil_tag('a', array('href'=>"/diffusion/$callsign", 'title'=>$path), "($callsign) " . $path);
   }
 
   function arrayToUl($arr, $path='', $depth=1) {
@@ -45,7 +45,7 @@ class GerritProjectListController extends GerritProjectController {
       $items[] = phutil_tag('li', array(), $item);
     }
     $ul = phutil_tag('ul', array('class'=>'remarkup-list', 'data-path' => $path), $items);
-		return phutil_tag('div', array('style'=>'font-family: monospace;'), $ul);
+    return phutil_tag('div', array('style'=>'font-family: monospace;'), $ul);
   }
 
   public function showProjectList(AphrontRequest $request, $message="") {
@@ -64,8 +64,8 @@ class GerritProjectListController extends GerritProjectController {
     $page->setDeviceReady(true);
     if ($message !== "") {
       $message = id(new PHUIInfoView())
-                  ->setTitle($message)
-                  ->setSeverity(PHUIInfoView::SEVERITY_NODATA);
+        ->setTitle($message)
+        ->setSeverity(PHUIInfoView::SEVERITY_NODATA);
     }
 
     $page->appendChild(array($crumbs, $message, $view));

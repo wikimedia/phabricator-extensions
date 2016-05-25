@@ -31,5 +31,3 @@ final class DifferentialApplyPatchWithOnlyGitField
   }
 
 }
-
-

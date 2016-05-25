@@ -1,0 +1,43 @@
+{
+  "linters": {
+    "chmod": {
+      "type": "chmod"
+    },
+    "filename": {
+      "type": "filename"
+    },
+    "generated": {
+      "type": "generated"
+    },
+    "json": {
+      "type": "json",
+      "include": [
+        "(^\\.arcconfig$)",
+        "(^\\.arclint$)",
+        "(\\.json$)"
+      ]
+    },
+    "merge-conflict": {
+      "type": "merge-conflict"
+    },
+    "nolint": {
+      "type": "nolint"
+    },
+    "php": {
+      "type": "php",
+      "include": "(\\.php$)"
+    },
+    "spelling": {
+      "type": "spelling"
+    },
+    "text-without-length": {
+      "type": "text",
+      "exclude": [
+        "(^\\.phutil_module_cache$)"
+      ],
+      "severity": {
+        "3": "disabled"
+      }
+    }
+  }
+}
