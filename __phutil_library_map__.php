@@ -9,6 +9,7 @@
 phutil_register_library_map(array(
   '__library_version__' => 2,
   'class' => array(
+    'CreatePolicyConduitAPIMethod' => 'src/conduit/CreatePolicyConduitAPIMethod.php',
     'CustomLoginHandler' => 'src/other/CustomLoginHandler.php',
     'DifferentialApplyPatchWithOnlyGitField' => 'src/customfields/DifferentialApplyPatchWithOnlyGitField.php',
     'GerritApplication' => 'src/gerrit/GerritApplication.php',
@@ -24,6 +25,7 @@ phutil_register_library_map(array(
   ),
   'function' => array(),
   'xmap' => array(
+    'CreatePolicyConduitAPIMethod' => 'ConduitAPIMethod',
     'CustomLoginHandler' => 'PhabricatorAuthLoginHandler',
     'DifferentialApplyPatchWithOnlyGitField' => 'DifferentialCustomField',
     'GerritApplication' => 'PhabricatorApplication',
