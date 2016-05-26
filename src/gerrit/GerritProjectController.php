@@ -35,12 +35,19 @@ class GerritProjectController extends PhabricatorController {
 			}
 		}
 		if ($data['action'] == 'history') {
-			if (!isset($data['branch'])) {
+			if (!isset($data['branch'])){
 				return new Aphront404Response();
 			}
 			$branch = $data['branch'];
+			// get rid of refs/heads prefix
+			$branch = str_replace('refs/heads', '', $branch);
+			$branch = trim($branch, '/');
+			$branch = str_replace('HEAD', '', $branch);
+			// double encode any forward slashes in ref.
+			$branch = str_replace('/', '%252F', $branch);
+
 			return id(new AphrontRedirectResponse())
-				->setURI("/diffusion/$CALLSIGN/history/$branch");
+				->setURI("/diffusion/$CALLSIGN/history/$branch/");
 		}
 		if ($data['action'] == 'browse') {
 			if (!isset($data['branch']) || !isset($data['file'])) {
