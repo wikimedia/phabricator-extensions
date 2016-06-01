@@ -21,6 +21,7 @@ phutil_register_library_map(array(
     'LDAPUserpageCustomField' => 'src/customfields/LDAPUserpageCustomField.php',
     'MediaWikiUserpageCustomField' => 'src/customfields/MediaWikiUserpageCustomField.php',
     'PhabricatorMediaWikiAuthProvider' => 'src/oauth/PhabricatorMediaWikiAuthProvider.php',
+    'PhabricatorMilestoneNavProfilePanel' => 'src/panel/PhabricatorMilestoneNavProfilePanel.php',
     'PhutilMediaWikiAuthAdapter' => 'src/oauth/PhutilMediaWikiAuthAdapter.php',
   ),
   'function' => array(),
@@ -36,6 +37,7 @@ phutil_register_library_map(array(
     'LDAPUserpageCustomField' => 'PhabricatorUserCustomField',
     'MediaWikiUserpageCustomField' => 'PhabricatorUserCustomField',
     'PhabricatorMediaWikiAuthProvider' => 'PhabricatorOAuth1AuthProvider',
+    'PhabricatorMilestoneNavProfilePanel' => 'PhabricatorProfilePanel',
     'PhutilMediaWikiAuthAdapter' => 'PhutilOAuth1AuthAdapter',
   ),
 ));
