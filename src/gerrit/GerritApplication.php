@@ -38,8 +38,9 @@ The following routes correspond the following gerrit [gitweb] config:
 */
 
     $routes = array(
+      '/r/(?P<action>p)/(?P<gerritProject>[^;]+);(?P<diffusionArgs>.*)',
       // filehistory
-      '/r/(?P<action>[a-z]+)/(?P<gerritProject>[^:]+);(?P<branch>[^;]+);(?P<file>[^;]+)',
+      '/r/(?P<action>[a-z]+)/(?P<gerritProject>[^;]+);(?P<branch>[^;]+);(?P<file>[^;]+)',
       // branch
       '/r/(?P<action>[a-z]+)/(?P<gerritProject>[^;]+);(?P<branch>[^;]+)',
       // commit
