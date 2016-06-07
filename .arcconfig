@@ -1,8 +1,5 @@
 {
    "phabricator.uri" : "https://phabricator.wikimedia.org/",
    "repository.callsign" : "PHEX",
-   "history.immutable" : false,
-   "load": [
-       "phabricator/src/"
-    ]
+   "history.immutable" : false
 }
