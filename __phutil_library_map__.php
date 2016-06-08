@@ -24,6 +24,7 @@ phutil_register_library_map(array(
     'PhabricatorMediaWikiAuthProvider' => 'src/oauth/PhabricatorMediaWikiAuthProvider.php',
     'PhabricatorMilestoneNavProfilePanel' => 'src/panel/PhabricatorMilestoneNavProfilePanel.php',
     'PhutilMediaWikiAuthAdapter' => 'src/oauth/PhutilMediaWikiAuthAdapter.php',
+    'PolicyQueryConduitAPIMethod' => 'src/conduit/PolicyQueryConduitAPIMethod.php',
   ),
   'function' => array(),
   'xmap' => array(
@@ -41,5 +42,6 @@ phutil_register_library_map(array(
     'PhabricatorMediaWikiAuthProvider' => 'PhabricatorOAuth1AuthProvider',
     'PhabricatorMilestoneNavProfilePanel' => 'PhabricatorProfilePanel',
     'PhutilMediaWikiAuthAdapter' => 'PhutilOAuth1AuthAdapter',
+    'PolicyQueryConduitAPIMethod' => 'ConduitAPIMethod',
   ),
 ));
