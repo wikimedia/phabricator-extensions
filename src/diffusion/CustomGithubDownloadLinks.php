@@ -22,7 +22,8 @@ class CustomGithubDownloadLinks {
     if (!$uri) {
       return;
     }
-
+    $uri = $uri->getURI();
+    
     $action = id(new PhabricatorActionView())
         ->setName(pht('Download zip (from Github)'))
         ->setIcon('fa-download')
