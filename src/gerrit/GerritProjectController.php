@@ -4,7 +4,6 @@ class GerritProjectController extends PhabricatorController {
 
   public function handleRequest(AphrontRequest $request) {
     $data = $request->getURIMap();
-
     $project = preg_replace('/\.git$/', '', $data['gerritProject']);
 
     if (!isset(GerritProjectMap::$projects[$project])) {
@@ -19,9 +18,11 @@ class GerritProjectController extends PhabricatorController {
       $diffusionArgs = isset($data['diffusionArgs'])
                      ? $data['diffusionArgs']
                      : "";
+      if ( $request->getStr('view') == 'raw') {
+        $diffusionArgs .= "?view=raw";
+      }
       return id(new AphrontRedirectResponse())
-        ->setIsExternal(true)
-        ->setURI("https://phabricator.wikimedia.org/diffusion/$CALLSIGN/$diffusionArgs");
+        ->setURI("/diffusion/$CALLSIGN/$diffusionArgs");
     } elseif ($action == 'branch') {
       if (!isset($data['branch'])){
         return new Aphront404Response();
