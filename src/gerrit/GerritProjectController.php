@@ -61,12 +61,19 @@ class GerritProjectController extends PhabricatorController {
       $file = $data['file'];
       return id(new AphrontRedirectResponse())
         ->setURI("/diffusion/$CALLSIGN/browse/$branch/$file");
-    } elseif ($data['action'] == 'revision') {
+    } elseif ($data['action'] == 'revision' || $data['action'] == 'patch'
+           || $data['action'] == 'commit') {
       $sha = isset($data['sha'])
         ? $data['sha']
         : $data['branch'];
+      if ($request->getExists('diff') || $request->getExists('patch') ||
+          $data['action'] == 'patch') {
+        $querystring = '?diff=1';
+      } else {
+        $querystring = '';
+      }
       return id(new AphrontRedirectResponse())
-        ->setURI('/r' . $CALLSIGN . $sha);
+        ->setURI('/r' . $CALLSIGN . $sha . $querystring);
     } elseif ($data['action'] == 'project') {
       return id(new AphrontRedirectResponse())
         ->setURI("/diffusion/$CALLSIGN/");
