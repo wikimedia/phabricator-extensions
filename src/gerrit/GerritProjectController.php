@@ -35,7 +35,7 @@ class GerritProjectController extends PhabricatorController {
         return id(new AphrontRedirectResponse())
           ->setURI("/diffusion/$CALLSIGN/browse/$branch/");
       }
-    } elseif ($data['action'] == 'history') {
+    } elseif ($action == 'history') {
       if (!isset($data['branch'])){
         return new Aphront404Response();
       }
@@ -43,17 +43,17 @@ class GerritProjectController extends PhabricatorController {
 
       return id(new AphrontRedirectResponse())
         ->setURI("/diffusion/$CALLSIGN/history/$branch/");
-    } elseif ($data['action'] == 'tags') {
+    } elseif ($action == 'tags') {
       return id(new AphrontRedirectResponse())
         ->setURI("/diffusion/$CALLSIGN/tags/");
-    } elseif ($data['action'] == 'tag') {
+    } elseif ($action == 'tag') {
       if (!isset($data['branch'])){
         return new Aphront404Response();
       }
       $tag = $this->getBranchNameFromRef($data['branch']);
       return id(new AphrontRedirectResponse())
         ->setURI("/diffusion/$CALLSIGN/browse/;$tag");
-    }elseif ($data['action'] == 'browse') {
+    }elseif ($action == 'browse') {
       if (!isset($data['branch']) || !isset($data['file'])) {
         return new Aphront404Response();
       }
@@ -61,20 +61,20 @@ class GerritProjectController extends PhabricatorController {
       $file = $data['file'];
       return id(new AphrontRedirectResponse())
         ->setURI("/diffusion/$CALLSIGN/browse/$branch/$file");
-    } elseif ($data['action'] == 'revision' || $data['action'] == 'patch'
-           || $data['action'] == 'commit') {
+    } elseif ($action == 'revision' || $action == 'patch'
+           || $action == 'commit') {
       $sha = isset($data['sha'])
         ? $data['sha']
         : $data['branch'];
       if ($request->getExists('diff') || $request->getExists('patch') ||
-          $data['action'] == 'patch') {
+          $action == 'patch') {
         $querystring = '?diff=1';
       } else {
         $querystring = '';
       }
       return id(new AphrontRedirectResponse())
         ->setURI('/r' . $CALLSIGN . $sha . $querystring);
-    } elseif ($data['action'] == 'project') {
+    } elseif ($action == 'project') {
       return id(new AphrontRedirectResponse())
         ->setURI("/diffusion/$CALLSIGN/");
     }
