@@ -4,15 +4,47 @@ class GerritProjectController extends PhabricatorController {
 
   public function handleRequest(AphrontRequest $request) {
     $data = $request->getURIMap();
-    $project = preg_replace('/\.git$/', '', $data['gerritProject']);
+    $project = isset($data['gerritProject'])
+             ? preg_replace('/\.git$/', '', $data['gerritProject']);
+             : '';
+    $diff_uri = null;
 
-    if (!isset(GerritProjectMap::$projects[$project])) {
+    if ($project && isset(GerritProjectMap::$projects[$project])) {
+      // static callsign lookup:
+      $CALLSIGN = GerritProjectMap::$projects[$project];
+      $diff_uri = "/diffusion/" . $CALLSIGN;
+    } else if ($project) {
+      // look up the repo uri from the database if it's not in the static map:
+      $viewer = $request->getViewer();
+      $query = new PhabricatorRepositoryQuery();
+      $gerrit_uri = "https://gerrit.wikimedia.org/r/p";
+
+      $project_uris = array(
+        "{$gerrit_uri}/{$project}",
+        "{$gerrit_uri}/{$project}/",
+        "{$gerrit_uri}/{$project}.git",
+      );
+
+      $repo = $query->withURIs($project_uris)
+                      ->setLimit(1)
+                      ->setViewer($viewer)
+                      ->executeOne();
+      if ($repo) {
+        $diff_uri = rtrim($repo->getURI(), '/');
+        $CALLSIGN = $repo->getCallsign();
+        if (!strlen($CALLSIGN)) {
+          $CALLSIGN = $repo->getID();
+        }
+      }
+    }
+
+    if (!$diff_uri) {
       $list_controller = new GerritProjectListController();
       $list_controller->setRequest($request);
       return $list_controller->showProjectList($request,
         pht("The requested project does not exist"));
     }
-    $CALLSIGN = GerritProjectMap::$projects[$project];
+
     $action = $data['action'];
     if ($action == 'p') {
       $diffusionArgs = isset($data['diffusionArgs'])
@@ -22,7 +54,7 @@ class GerritProjectController extends PhabricatorController {
         $diffusionArgs .= "?view=raw";
       }
       return id(new AphrontRedirectResponse())
-        ->setURI("/diffusion/$CALLSIGN/$diffusionArgs");
+        ->setURI("{$diff_uri}/$diffusionArgs");
     } elseif ($action == 'branch') {
       if (!isset($data['branch'])){
         return new Aphront404Response();
@@ -30,10 +62,10 @@ class GerritProjectController extends PhabricatorController {
       $branch = $this->getBranchNameFromRef($data['branch']);
       if (strlen($branch)==0) {
         return id(new AphrontRedirectResponse())
-          ->setURI("/diffusion/$CALLSIGN/browse/");
+          ->setURI("{$diff_uri}/browse/");
       } else {
         return id(new AphrontRedirectResponse())
-          ->setURI("/diffusion/$CALLSIGN/browse/$branch/");
+          ->setURI("{$diff_uri}/browse/$branch/");
       }
     } elseif ($action == 'history') {
       if (!isset($data['branch'])){
@@ -42,17 +74,17 @@ class GerritProjectController extends PhabricatorController {
       $branch = $this->getBranchNameFromRef($data['branch']);
 
       return id(new AphrontRedirectResponse())
-        ->setURI("/diffusion/$CALLSIGN/history/$branch/");
+        ->setURI("{$diff_uri}/history/$branch/");
     } elseif ($action == 'tags') {
       return id(new AphrontRedirectResponse())
-        ->setURI("/diffusion/$CALLSIGN/tags/");
+        ->setURI("{$diff_uri}/tags/");
     } elseif ($action == 'tag') {
       if (!isset($data['branch'])){
         return new Aphront404Response();
       }
       $tag = $this->getBranchNameFromRef($data['branch']);
       return id(new AphrontRedirectResponse())
-        ->setURI("/diffusion/$CALLSIGN/browse/;$tag");
+        ->setURI("{$diff_uri}/browse/;$tag");
     }elseif ($action == 'browse') {
       if (!isset($data['branch']) || !isset($data['file'])) {
         return new Aphront404Response();
@@ -60,7 +92,7 @@ class GerritProjectController extends PhabricatorController {
       $branch = $this->getBranchNameFromRef($data['branch']);
       $file = $data['file'];
       return id(new AphrontRedirectResponse())
-        ->setURI("/diffusion/$CALLSIGN/browse/$branch/$file");
+        ->setURI("{$diff_uri}/browse/$branch/$file");
     } elseif ($action == 'revision' || $action == 'patch'
            || $action == 'commit') {
       $sha = isset($data['sha'])
@@ -76,7 +108,7 @@ class GerritProjectController extends PhabricatorController {
         ->setURI('/r' . $CALLSIGN . $sha . $querystring);
     } elseif ($action == 'project') {
       return id(new AphrontRedirectResponse())
-        ->setURI("/diffusion/$CALLSIGN/");
+        ->setURI($diff_uri);
     }
     phlog('did not match any repository redirect action');
     return new Aphront404Response();
@@ -89,6 +121,7 @@ class GerritProjectController extends PhabricatorController {
     $branch = trim($branch, '/');
     $branch = str_replace('HEAD', '', $branch);
     // double encode any forward slashes in ref.
+    $branch = str_replace('%2F', '%252F', $branch);
     $branch = str_replace('/', '%252F', $branch);
     return $branch;
   }
