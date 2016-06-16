@@ -5,7 +5,7 @@ class GerritProjectController extends PhabricatorController {
   public function handleRequest(AphrontRequest $request) {
     $data = $request->getURIMap();
     $project = isset($data['gerritProject'])
-             ? preg_replace('/\.git$/', '', $data['gerritProject']);
+             ? preg_replace('/\.git$/', '', $data['gerritProject'])
              : '';
     $diff_uri = null;
 
