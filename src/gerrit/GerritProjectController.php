@@ -17,11 +17,12 @@ class GerritProjectController extends PhabricatorController {
       // look up the repo uri from the database if it's not in the static map:
       $viewer = $request->getViewer();
       $query = new PhabricatorRepositoryQuery();
-      $gerrit_uri = "https://gerrit.wikimedia.org/r/p";
+      $gerrit_uri = "https://gerrit.wikimedia.org/r";
 
       $project_uris = array(
         "{$gerrit_uri}/{$project}",
         "{$gerrit_uri}/{$project}/",
+        "{$gerrit_uri}/p/{$project}",
         "{$gerrit_uri}/{$project}.git",
       );
 
