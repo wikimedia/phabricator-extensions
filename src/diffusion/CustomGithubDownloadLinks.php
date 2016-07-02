@@ -9,7 +9,8 @@ class CustomGithubDownloadLinks {
       if ($uri->getIsDisabled()) {
         continue;
       }
-      if ($uri->getEffectiveIoType() == PhabricatorRepositoryURI::IO_MIRROR) {
+      if ($uri->getEffectiveIoType() == PhabricatorRepositoryURI::IO_MIRROR &&
+          strpos($uri->getDisplayURI(), 'github') !== false) {
         return $uri;
       }
     }
