@@ -5,11 +5,11 @@ class PhabricatorMilestoneNavProfilePanel
   const PANELKEY = 'project.milestonenav';
 
   public function getPanelTypeName() {
-    return pht('Milestone Navigation');
+    return pht('Previous / Next Milestone Navigation Links');
   }
 
   private function getDefaultName() {
-    return pht('Milestone Series');
+    return pht('Series Navigation');
   }
 
   public function shouldEnableForObject($object) {
@@ -43,26 +43,26 @@ class PhabricatorMilestoneNavProfilePanel
     $project = $config->getProfileObject();
     $milestone_num = $project->getMilestoneNumber();
     $parent_phid = $project->getParentProjectPHID();
+    $parent_id = $project->getParentProject()->getID();
+
     $milestones = id(new PhabricatorProjectQuery())
       ->setViewer($viewer)
       ->withParentProjectPHIDs(array($parent_phid))
-      ->needImages(true)
       ->withIsMilestone(true)
       ->withMilestoneNumberBetween($milestone_num-1, $milestone_num+1)
-      ->withStatuses(
-        array(
-          PhabricatorProjectStatus::STATUS_ACTIVE,
-        ))
       ->setOrderVector(array('-milestoneNumber', 'id'))
       ->execute();
-    $actions = new PhabricatorActionListView();
-    $actions->setViewer($this->getViewer());
-    $items = array();
+
+    $parent = $this->newItem();
+    $parent->setName('Series')
+      ->setIcon('fa-arrows-h')
+      ->setHref("/project/subprojects/{$parent_id}/")
+      ->setType(PHUIListItemView::TYPE_LINK);
+
+    $items = array($parent);
+
     foreach($milestones as $milestone) {
       $num = $milestone->getMilestoneNumber();
-      if ($num == $milestone_num) {
-        continue;
-      }
 
       $uri = $milestone->getURI();
       $name = $milestone->getName();
@@ -73,32 +73,21 @@ class PhabricatorMilestoneNavProfilePanel
       } else if ($num > $milestone_num) {
         $icon = 'fa-arrow-right';
         $name = pht('Next: %s', $name);
+      } else {
+        continue;
       }
 
-      $actions->addAction(
-        id(new PhabricatorActionView())
-        ->setHref($uri)
-        ->setName($name)
-        ->setIcon($icon)
-      );
       $items[] = $this->newItem()
         ->setIcon($icon)
         ->setHref($uri)
         ->setName($name);
     }
-    if (count($items) == 1) {
-      return $items;
+
+    if (count($items) < 2) {
+      return array();
     }
 
-    $item = $this->newItem()
-      ->setType(PHUIListItemView::TYPE_BUTTON)
-      ->setName('Series Navigation')
-      ->setIndented(true)
-      ->setIcon('fa-arrows-h')
-      ->setHref('#')
-      ->setDropdownMenu($actions);
-
-    return array($item);
+    return  $items;
   }
 
   private function renderError($message) {
