@@ -87,7 +87,7 @@ final class GerritChangeIdField
     if (!strlen($value)) {
       return phutil_tag('em',array(),'None');
     }
-    $url = 'https://gerrit.wikimedia.org/r/#q,'.$value.',n,z';
+    $url = "https://gerrit.wikimedia.org/r/#/q/$value";
     $links[] = phutil_tag(
       'a',
       array(
