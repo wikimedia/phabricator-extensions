@@ -26,6 +26,7 @@ phutil_register_library_map(array(
     'PhabricatorMilestoneNavProfilePanel' => 'src/panel/PhabricatorMilestoneNavProfilePanel.php',
     'PhutilMediaWikiAuthAdapter' => 'src/oauth/PhutilMediaWikiAuthAdapter.php',
     'PolicyQueryConduitAPIMethod' => 'src/conduit/PolicyQueryConduitAPIMethod.php',
+    'ProjectOpenTasksProfilePanel' => 'src/panel/ProjectOpenTasksProfilePanel.php',
   ),
   'function' => array(),
   'xmap' => array(
@@ -44,5 +45,6 @@ phutil_register_library_map(array(
     'PhabricatorMilestoneNavProfilePanel' => 'PhabricatorProfilePanel',
     'PhutilMediaWikiAuthAdapter' => 'PhutilOAuth1AuthAdapter',
     'PolicyQueryConduitAPIMethod' => 'ConduitAPIMethod',
+    'ProjectOpenTasksProfilePanel' => 'PhabricatorProfilePanel',
   ),
 ));
