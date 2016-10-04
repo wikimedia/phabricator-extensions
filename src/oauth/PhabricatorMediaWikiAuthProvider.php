@@ -230,7 +230,7 @@ final class PhabricatorMediaWikiAuthProvider
           ->setValue($v_uri)
           ->setName(self::PROPERTY_MEDIAWIKI_URI)
           ->setPlaceholder('https://www.mediawiki.org/w')
-          ->setCaption(pht('The full URL to your MediaWiki innstall, up to but not including "index.php"'))
+          ->setCaption(pht('The full URL to your MediaWiki install, up to but not including "index.php"'))
           ->setError($e_uri));
 
     if (!$is_setup) {
