@@ -27,6 +27,7 @@ phutil_register_library_map(array(
     'PhutilMediaWikiAuthAdapter' => 'src/oauth/PhutilMediaWikiAuthAdapter.php',
     'PolicyQueryConduitAPIMethod' => 'src/conduit/PolicyQueryConduitAPIMethod.php',
     'ProjectOpenTasksProfilePanel' => 'src/panel/ProjectOpenTasksProfilePanel.php',
+    'WmfConfigSource' => 'src/other/WmfConfigSource.php',
   ),
   'function' => array(),
   'xmap' => array(
@@ -46,5 +47,6 @@ phutil_register_library_map(array(
     'PhutilMediaWikiAuthAdapter' => 'PhutilOAuth1AuthAdapter',
     'PolicyQueryConduitAPIMethod' => 'ConduitAPIMethod',
     'ProjectOpenTasksProfilePanel' => 'PhabricatorProfilePanel',
+    'WmfConfigSource' => 'PhabricatorConfigSiteSource',
   ),
 ));
