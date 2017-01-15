@@ -1,10 +1,10 @@
 <?php
-class PhabricatorMilestoneNavProfilePanel
-  extends PhabricatorProfilePanel {
+class PhabricatorMilestoneNavProfileMenuItem
+  extends PhabricatorProfileMenuItem {
 
-  const PANELKEY = 'project.milestonenav';
+  const MENUITEMKEY = 'project.milestonenav';
 
-  public function getPanelTypeName() {
+  public function getMenuItemTypeName() {
     return pht('Previous / Next Milestone Navigation Links');
   }
 
@@ -21,12 +21,19 @@ class PhabricatorMilestoneNavProfilePanel
     return true;
   }
 
-  public function getDisplayName(PhabricatorProfilePanelConfiguration $config) {
+  public function getDisplayName(
+    PhabricatorProfileMenuItemConfiguration $config) {
+    $name = $config->getMenuItemProperty('name');
+
+    if (strlen($name)) {
+      return $name;
+    }
+
     return $this->getDefaultName();
   }
 
   public function buildEditEngineFields(
-    PhabricatorProfilePanelConfiguration $config) {
+    PhabricatorProfileMenuItemConfiguration $config) {
     return array(
       id(new PhabricatorInstructionsEditField())
         ->setValue(
@@ -38,7 +45,7 @@ class PhabricatorMilestoneNavProfilePanel
   }
 
   protected function newNavigationMenuItems(
-    PhabricatorProfilePanelConfiguration $config) {
+    PhabricatorProfileMenuItemConfiguration $config) {
     $viewer = $this->getViewer();
     $project = $config->getProfileObject();
     $milestone_num = $project->getMilestoneNumber();
