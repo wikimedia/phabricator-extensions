@@ -20,11 +20,6 @@ final class PhabricatorElasticSearchBackendSetting
     return 200;
   }
 
-  protected function isEnabledForViewer(PhabricatorUser $viewer) {
-    return PhabricatorEnv::getEnvConfigIfExists(
-                               'search.elastic.enabled', false);
-  }
-
   protected function getControlInstructions() {
     return pht('Enable this to use the experimental ElasticSearch fulltext backend.');
   }
