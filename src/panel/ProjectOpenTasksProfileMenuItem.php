@@ -1,15 +1,15 @@
 <?php
 
-final class ProjectOpenTasksProfilePanel
-  extends PhabricatorProfilePanel {
+final class ProjectOpenTasksProfileMenuItem
+  extends PhabricatorProfileMenuItem {
 
-  const PANELKEY = 'custom.open-tasks';
+  const MENUITEMKEY = 'custom.open-tasks';
 
-  public function getPanelTypeIcon() {
+  public function getMenuItemTypeIcon() {
     return 'fa-anchor';
   }
 
-  public function getPanelTypeName() {
+  public function getMenuItemTypeName() {
     return pht('Link to Open Tasks');
   }
 
@@ -18,12 +18,12 @@ final class ProjectOpenTasksProfilePanel
   }
 
   public function getDisplayName(
-    PhabricatorProfilePanelConfiguration $config) {
+    PhabricatorProfileMenuItemConfiguration $config) {
     return pht('Open Tasks');
   }
 
   protected function newNavigationMenuItems(
-    PhabricatorProfilePanelConfiguration $config) {
+    PhabricatorProfileMenuItemConfiguration $config) {
 
     $object = $config->getProfileObject();
 
