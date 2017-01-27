@@ -5,20 +5,26 @@ class PhabricatorMilestoneNavProfileMenuItem
   const MENUITEMKEY = 'project.milestonenav';
 
   public function getMenuItemTypeName() {
-    return pht('Previous / Next Milestone Navigation Links');
+    return pht('Milestone Navigation Links');
+  }
+  public function getMenuItemTypeIcon() {
+    return 'fa-step-forward';
   }
 
   private function getDefaultName() {
     return pht('Series Navigation');
   }
 
+  public function canAddToObject($object) {
+    return false;
+  }
+
   public function shouldEnableForObject($object) {
     // Only render this element for milestones.
-    if (!$object->isMilestone()) {
-      return false;
+    if ($object instanceof PhabricatorProject && $object->isMilestone()) {
+      return true;
     }
-
-    return true;
+    return false;
   }
 
   public function getDisplayName(

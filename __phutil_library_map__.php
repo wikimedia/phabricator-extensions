@@ -28,7 +28,7 @@ phutil_register_library_map(array(
     'PhabricatorMilestoneNavProfileMenuItem' => 'src/panel/PhabricatorMilestoneNavProfileMenuItem.php',
     'PhutilMediaWikiAuthAdapter' => 'src/oauth/PhutilMediaWikiAuthAdapter.php',
     'PolicyQueryConduitAPIMethod' => 'src/conduit/PolicyQueryConduitAPIMethod.php',
-    'ProjectOpenTasksProfilePanel' => 'src/panel/ProjectOpenTasksProfilePanel.php',
+    'ProjectOpenTasksProfileMenuItem' => 'src/panel/ProjectOpenTasksProfileMenuItem.php',
     'WmfConfigSource' => 'src/other/WmfConfigSource.php',
   ),
   'function' => array(),
@@ -50,7 +50,7 @@ phutil_register_library_map(array(
     'PhabricatorMilestoneNavProfileMenuItem' => 'PhabricatorProfileMenuItem',
     'PhutilMediaWikiAuthAdapter' => 'PhutilOAuth1AuthAdapter',
     'PolicyQueryConduitAPIMethod' => 'ConduitAPIMethod',
-    'ProjectOpenTasksProfilePanel' => 'PhabricatorProfilePanel',
+    'ProjectOpenTasksProfileMenuItem' => 'PhabricatorProfileMenuItem',
     'WmfConfigSource' => 'PhabricatorConfigSiteSource',
   ),
 ));
