@@ -6,7 +6,7 @@ final class ProjectBurnupGraphProfileMenuItem
   const MENUITEMKEY = 'custom.burnup-graph';
 
   public function getMenuItemTypeIcon() {
-    return 'fa-anchor';
+    return 'fa-line-chart';
   }
 
   public function getMenuItemTypeName() {
@@ -42,6 +42,21 @@ final class ProjectBurnupGraphProfileMenuItem
 
     return array(
       $item,
+    );
+  }
+
+
+  public function buildEditEngineFields(
+    PhabricatorProfileMenuItemConfiguration $config) {
+    return array(
+      id(new PhabricatorInstructionsEditField())
+        ->setValue(
+          pht(
+            'This adds a link to search maniphest for open tasks which are '.
+            "tagged with this project.\n\n".
+            "NOTE: This feature is provided by a Wikimedia-maintained ".
+            'extension, ProjectBurnupGraphProfileMenuItem. See '.
+            '{rPHEX} for the source.')),
     );
   }
 

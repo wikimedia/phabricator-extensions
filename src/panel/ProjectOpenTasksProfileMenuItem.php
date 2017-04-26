@@ -39,4 +39,18 @@ final class ProjectOpenTasksProfileMenuItem
     );
   }
 
+  public function buildEditEngineFields(
+    PhabricatorProfileMenuItemConfiguration $config) {
+    return array(
+      id(new PhabricatorInstructionsEditField())
+        ->setValue(
+          pht(
+            'This adds a link to search maniphest for open tasks which are '.
+            "tagged with this project.\n\n".
+            "NOTE: This feature is provided by a Wikimedia-maintained ".
+            'extension, ProjectOpenTasksProfileMenuItemextension. See '.
+            '{rPHEX} for the source.')),
+    );
+  }
+
 }
