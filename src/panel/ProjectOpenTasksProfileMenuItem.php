@@ -27,7 +27,7 @@ final class ProjectOpenTasksProfileMenuItem
 
     $object = $config->getProfileObject();
 
-    $href = '/maniphest/?project='.$object->getPHID().'&statuses=open()#R';
+    $href = '/maniphest/?project='.$object->getPHID().'&statuses=open()&group=none&order=newest#R';
 
     $item = $this->newItem()
       ->setHref($href)
