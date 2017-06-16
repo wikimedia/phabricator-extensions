@@ -30,6 +30,7 @@ phutil_register_library_map(array(
     'PolicyQueryConduitAPIMethod' => 'src/conduit/PolicyQueryConduitAPIMethod.php',
     'ProjectBurnupGraphProfileMenuItem' => 'src/panel/ProjectBurnupGraphProfileMenuItem.php',
     'ProjectOpenTasksProfileMenuItem' => 'src/panel/ProjectOpenTasksProfileMenuItem.php',
+    'ReleaseDetailsCustomField' => 'src/customfields/ReleaseDetailsCustomField.php',
     'WmfConfigSource' => 'src/other/WmfConfigSource.php',
   ),
   'function' => array(),
@@ -53,6 +54,10 @@ phutil_register_library_map(array(
     'PolicyQueryConduitAPIMethod' => 'ConduitAPIMethod',
     'ProjectBurnupGraphProfileMenuItem' => 'PhabricatorProfileMenuItem',
     'ProjectOpenTasksProfileMenuItem' => 'PhabricatorProfileMenuItem',
+    'ReleaseDetailsCustomField' => array(
+      'ManiphestCustomField',
+      'PhabricatorStandardCustomFieldInterface',
+    ),
     'WmfConfigSource' => 'PhabricatorConfigSiteSource',
   ),
 ));
