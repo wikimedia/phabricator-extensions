@@ -36,10 +36,11 @@ class ReleaseDetailsCustomField
   }
 
   public function shouldAppearInPropertyView() {
-    //$task = $this->getObject();
-    //$subtype = $task->getSubtype();
-    //phlog($subtype);
-    return true;
+    $task = $this->getObject();
+    if (!$task) {
+      return false;
+    }
+    return $task->getSubtype() == 'release';
   }
 
   public function shouldAppearInEditView() {
