@@ -107,6 +107,14 @@ class ReleaseDetailsCustomField
     $weekday = $date->format("l");
     $month = $date->format("F");
     $monthday = $date->format("jS");
+    $oneday = new DateInterval('P1D');
+    $date->add($oneday);
+    $tue = $date->format('F jS');
+    $date->add($oneday);
+    $wed = $date->format('F jS');
+    $date->add($oneday);
+    $thu = $date->format('F jS');
+
     list($major, $wmfnum) = explode("-", $version);
     $major = explode('.', $major);
     $major = $major[0] . '.' . $major[1];
@@ -116,7 +124,7 @@ class ReleaseDetailsCustomField
 
     // vars to pass to template:
     $vars = compact("major", "wmfnum", "year", "week", "weekday", "month",
-      "monthday", "series");
+      "monthday", "tue", "wed", "thu", "series");
 
     // render template to remarkupL
     $remarkup = $this->renderTrainDeployDetails($vars);
@@ -129,15 +137,28 @@ class ReleaseDetailsCustomField
   private function renderTrainDeployDetails($vars) {
     extract($vars);
     return <<<EOT
-= {icon book} [[ https://www.mediawiki.org/wiki/Special:MyLanguage/MediaWiki_$major | MediaWiki $major ]] - [[ https://www.mediawiki.org/wiki/Special:MyLanguage/MediaWiki_$major/$wmfnum | $wmfnum ]] =
-----
-== {icon calendar} **$year** week **$week** ==
-* Week of **$weekday, $month $monthday**
+= {icon book} [[ https://www.mediawiki.org/wiki/Special:MyLanguage/MediaWiki_$major | MediaWiki $major ]] - [[ https://www.mediawiki.org/wiki/Special:MyLanguage/MediaWiki_$major/$wmfnum | $wmfnum ]] -- {icon calendar} **$year** week **$week** ==
+ MediaWiki train deployment schedule for the week of **$weekday, $month $monthday**
+
+|**Monday $month $monthday**|**Tuesday, {$tue}**      | **Wednesday, {$wed}**   | **Thursday, {$thu}** | **Friday**               |
+|---------------------------|-------------------------|-------------------------|----------------------|--------------------------|
+|SWAT deployments only      |Branch `$wmfnum`, Deploy to Group 0 Wikis| Deploy `$wmfnum` to Group 1 Wikis | Deploy `$wmfnum` to all Wikis  |No deployments on fridays |
+
 * See https://wikitech.wikimedia.org/wiki/Deployments for full schedule.
 
-== {icon subway} Other Deployments: ==
+== {icon info-circle} How this works:
+* Any serious bugs affecting `$wmfnum` should be added as subtasks beneith this one.
+** Use the `Edit Related Tasks` menu to add one.
+* Any open subtasks block the train from moving forward. This means no further deployments until the blockers are resolved.
+* If something is serious enough to warrant a rollback then you should contact someone on the [[ https://www.mediawiki.org/wiki/MediaWiki_on_IRC | #wikimedia-operations IRC channel ]].
+
+== {icon subway} Other Versions ==
 * [[https://www.mediawiki.org/wiki/MediaWiki_$major/Roadmap|MediaWiki $major/Roadmap]]
-{icon chevron-left} {$series['prev']} {icon arrows-h} {$series['next']} {icon chevron-right}
+|{icon chevron-left} Previous Version|     | Next Version {icon chevron-right}|
+|----------------|-----|-------------|
+|{$series['prev']}| {icon arrows-h}| {$series['next']}|
+
+
 EOT;
   }
 
