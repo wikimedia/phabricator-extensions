@@ -157,6 +157,11 @@ final class PhutilMediaWikiAuthAdapter
       throw new Exception(
         pht('OAuth JWT nonce didn\'t match what we sent.'));
     }
+    if ($identity->blocked) {
+      throw new Exception(
+        pht('OAuth error: this account has been blocked in MediaWiki.'));
+    }
+
     $userinfo['userid'] = $identity->sub;
     $userinfo['username'] = $identity->username;
     $userinfo['groups'] = $identity->groups;
