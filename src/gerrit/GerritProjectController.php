@@ -61,7 +61,11 @@ class GerritProjectController extends PhabricatorController {
         return new Aphront404Response();
       }
       $branch = $this->getBranchNameFromRef($data['branch']);
-      if (strlen($branch)==0) {
+      if (preg_match('/refs\/meta\/config/', $data['branch'])) {
+        $branchMeta = $data['branch'];
+        return id(new AphrontRedirectResponse())
+          ->setURI("{$diff_uri}/browse/project.config/;$branchMeta");
+      } elseif (strlen($branch)==0) {
         return id(new AphrontRedirectResponse())
           ->setURI("{$diff_uri}/browse/");
       } else {
