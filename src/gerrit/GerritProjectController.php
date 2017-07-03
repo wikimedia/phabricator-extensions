@@ -83,7 +83,7 @@ class GerritProjectController extends PhabricatorController {
       if (!isset($data['branch'])){
         return new Aphront404Response();
       }
-      $tag = $this->getBranchNameFromRef($data['branch']);
+      $tag = $this->getTagNameFromRef($data['branch']);
       return id(new AphrontRedirectResponse())
         ->setURI("{$diff_uri}/browse/;$tag");
     }elseif ($action == 'browse') {
@@ -125,6 +125,13 @@ class GerritProjectController extends PhabricatorController {
     $branch = str_replace('%2F', '%252F', $branch);
     $branch = str_replace('/', '%252F', $branch);
     return $branch;
+  }
+
+  private function getTagNameFromRef($tag) {
+    // get rid of refs/tags prefix
+    $tag = str_replace('refs/tags', '', $tag);
+    $tag = trim($tag, '/');
+    return $tag;
   }
 
   public function shouldAllowPublic() {

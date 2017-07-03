@@ -26,11 +26,12 @@ final class GerritApplication extends PhabricatorApplication {
 The following routes correspond the following gerrit [gitweb] config:
 
 [gitweb]
-    url = https://git.wikimedia.org
+    url = https://phabricator.wikimedia.org
     type = custom
     revision = "/r/revision/${project};${commit}"
     project = /r/project/${project}
     branch = "/r/branch/${project};${branch}"
+    tag = "/r/tag/${project};${tag}"
     filehistory = "/r/browse/${project};${branch};${file}"
     linkname = diffusion
     linkDrafts = false
@@ -41,7 +42,7 @@ The following routes correspond the following gerrit [gitweb] config:
       '/r/(?P<action>p)/(?P<gerritProject>[^;]+);(?P<diffusionArgs>.*)',
       // filehistory
       '/r/(?P<action>[a-z]+)/(?P<gerritProject>[^;]+);(?P<branch>[^;]+);(?P<file>[^;]+)',
-      // branch
+      // branch or tag
       '/r/(?P<action>[a-z]+)/(?P<gerritProject>[^;]+);(?P<branch>[^;]+)',
       // commit
       '/r/(?P<action>[a-z]+)/(?P<gerritProject>[^;]+);(?P<sha>[0-9a-z]+)',
