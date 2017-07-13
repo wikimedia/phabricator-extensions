@@ -17,38 +17,53 @@ class CustomGithubDownloadLinks {
     return false;
   }
 
-  static function AddActionLinksToCurtain($repository, $identifier, $curtain) {
+  static function AddActionLinksToTop($repository, $viewer, $identifier, $color) {
 
     $uri = self::getMirrorURI($repository);
     if (!$uri) {
       return;
     }
     $uri = $uri->getURI();
-    
-    $action = id(new PhabricatorActionView())
-        ->setName(pht('Download zip (from Github)'))
-        ->setIcon('fa-download')
-        ->setHref($uri.'/archive/'.$identifier.'.zip');
-    $curtain->addAction($action);
 
-    $action = id(new PhabricatorActionView())
-        ->setName(pht('Download gz (from Github)'))
-        ->setIcon('fa-download')
-        ->setHref($uri.'/archive/'.$identifier.'.tar.gz');
-    $curtain->addAction($action);
+    $action_view = id(new PhabricatorActionListView())
+      ->setViewer($viewer)
+      ->addAction(
+        id(new PhabricatorActionView())
+          ->setName(pht('Download zip'))
+          ->setIcon('fa-github')
+          ->setDownload(true)
+          ->setHref($uri.'/archive/'.$identifier.'.zip'))
+      ->addAction(
+        id(new PhabricatorActionView())
+          ->setName(pht('Download tar.gz'))
+          ->setIcon('fa-github')
+          ->setDownload(true)
+          ->setHref($uri.'/archive/'.$identifier.'.tar.gz'));
+
+    return id(new PHUIButtonView())
+      ->setTag('a')
+      ->setText(pht('Download Archive'))
+      ->setHref('#')
+      ->setColor($color)
+      ->setIcon('fa-download')
+      ->setDropdownMenu($action_view);
   }
 
-  static function addActionsToCurtainFromRequest($drequest, $curtain) {
+  static function AddActionLinksToCurtain($drequest, $viewer, $color=PHUIButtonView::GREY) {
     $repository = $drequest->getRepository();
 
-    if ($drequest->getSymbolicType() == 'tag') {
-      $download = $drequest->getSymbolicCommit();
-    } elseif ($drequest->getSymbolicType() == 'commit') {
-      $download = $drequest->getStableCommit();
-    } else {
-      $download = $drequest->getBranch();
+    try {
+      if ($drequest->getSymbolicType() == 'tag') {
+        $download = $drequest->getSymbolicCommit();
+      } elseif ($drequest->getSymbolicType() == 'commit') {
+        $download = $drequest->getStableCommit();
+      } else {
+        $download = $drequest->getBranch();
+      }
+    } catch(Exception $e) {
+      return '';
     }
 
-    return self::AddActionLinksToCurtain($repository, $download, $curtain);
+    return self::AddActionLinksToTop($repository, $viewer, $download, $color);
   }
 }
