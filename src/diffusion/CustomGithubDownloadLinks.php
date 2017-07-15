@@ -49,6 +49,27 @@ class CustomGithubDownloadLinks {
       ->setDropdownMenu($action_view);
   }
 
+  static function AddActionLinksToBottom($repository, $identifier, $curtain) {
+
+    $uri = self::getMirrorURI($repository);
+    if (!$uri) {
+      return;
+    }
+    $uri = $uri->getURI();
+
+    $action = id(new PhabricatorActionView())
+        ->setName(pht('Download zip'))
+        ->setIcon('fa-download')
+        ->setHref($uri.'/archive/'.$identifier.'.zip');
+    $curtain->addAction($action);
+
+    $action = id(new PhabricatorActionView())
+        ->setName(pht('Download tar.gz'))
+        ->setIcon('fa-download')
+        ->setHref($uri.'/archive/'.$identifier.'.tar.gz');
+    $curtain->addAction($action);
+  }
+
   static function AddActionLinksToCurtain($drequest, $viewer, $color=PHUIButtonView::GREY) {
     $repository = $drequest->getRepository();
 
