@@ -132,13 +132,40 @@ class ReleaseDetailsCustomField
     $viewer = $this->getViewer();
 
     // RemarkupView based on the template markup:
-    return new PHUIRemarkupView($viewer, $remarkup);
+    $view = id(new PHUIRemarkupView($viewer, $remarkup))
+      ->setRemarkupOption('uri.same-window', true)
+      ->setContextObject($obj);
+
+    $prev_button = id(new PHUIButtonView())
+      ->setTag('a')
+      ->setIcon('fa-chevron-left')
+      ->setText(pht('Previous: %s', $series['prev-version']));
+
+    if ($series['prev'] == '...') {
+      $prev_button->setDisabled(true);
+    } else {
+      $prev_button->setHref('/'.$series['prev']);
+    }
+
+    $next_button = id(new PHUIButtonView())
+      ->setTag('a')
+      ->setIcon('fa-chevron-right')
+      ->setText(pht('Next: %s', $series['next-version']));
+
+    if ($series['next'] == '...') {
+      $next_button->setDisabled(true);
+    } else {
+      $next_button->setHref('/'.$series['next']);
+    }
+
+    return array($view, $prev_button, ' ', $next_button);
+
   }
 
   private function renderTrainDeployDetails($vars) {
     extract($vars);
     return <<<EOT
-=  {icon calendar} **$year** week **$week** {icon angle-right} {icon book} [[ https://www.mediawiki.org/wiki/Special:MyLanguage/MediaWiki_$major/$wmfnum | $major-$wmfnum Roadmap ]] {icon angle-right} {icon git} [[/source/mediawiki/history/wmf%252F$major-$wmfnum|wmf/$major-$wmfnum  ]]
+=  {icon calendar} **$year** week **$week** {icon angle-right} {icon book} [[ https://www.mediawiki.org/wiki/Special:MyLanguage/MediaWiki_$major/$wmfnum | $major-$wmfnum Changes ]] {icon angle-right} {icon git} [[/source/mediawiki/history/wmf%252F$major-$wmfnum|wmf/$major-$wmfnum  ]]
 
 This MediaWiki Train Deployment is scheduled for the week of **$weekday, $month $monthday**:
 
@@ -154,13 +181,12 @@ This MediaWiki Train Deployment is scheduled for the week of **$weekday, $month 
 * Any open subtasks block the train from moving forward. This means no further deployments until the blockers are resolved.
 * If something is serious enough to warrant a rollback then you should contact someone on the [[ https://www.mediawiki.org/wiki/MediaWiki_on_IRC | #wikimedia-operations IRC channel ]].
 
-== {icon subway} Other Versions ==
-* [[https://www.mediawiki.org/wiki/MediaWiki_$major/Roadmap|MediaWiki $major/Roadmap]]
-|{icon chevron-left} Previous Version|     | Next Version {icon chevron-right}|
-|----------------|-----|-------------|
-|{$series['prev']}| {icon arrows-h}| {$series['next']}|
+----
+== {icon link} Related Links ==
+* {icon map-marker} [[https://www.mediawiki.org/wiki/MediaWiki_$major/Roadmap|MediaWiki $major/Roadmap]]
+* {icon code-fork} [[/source/mediawiki/compare/?head=wmf%2F$major-$wmfnum&against=master|Commits cherry-picked to $major-$wmfnum ]]
 
-
+== {icon arrows-h} Other Deployments ==
 EOT;
   }
 
@@ -222,15 +248,18 @@ EOT;
       ->withPHIDs($phids);
     $tasks = $query->execute();
 
-    $res = array('prev' => '...', 'next' => '...');
+    $res = array('prev' => '...', 'next' => '...',
+                 'prev-version' => '...', 'next-version' => '...');
     foreach ($tasks as $id => $task) {
       $monogram = $task->getMonogram();
       $phid = $task->getPHID();
       $version = $versions[$phid];
       if ($version == $prev) {
-        $res['prev'] = '{'.$monogram.'}';
+        $res['prev'] = $monogram;
+        $res['prev-version'] = $version;
       } else if ($version == $next) {
-        $res['next'] = '{'.$monogram.'}';
+        $res['next'] = $monogram;
+        $res['next-version'] = $version;
       }
     }
     return $res;
