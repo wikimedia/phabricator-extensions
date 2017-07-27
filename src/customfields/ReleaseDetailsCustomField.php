@@ -32,7 +32,7 @@ class ReleaseDetailsCustomField
   }
 
   public function shouldAppearInApplicationSearch() {
-    return true;
+    return false;
   }
 
   public function shouldAppearInPropertyView() {
@@ -138,8 +138,9 @@ class ReleaseDetailsCustomField
   private function renderTrainDeployDetails($vars) {
     extract($vars);
     return <<<EOT
-= {icon book} [[ https://www.mediawiki.org/wiki/Special:MyLanguage/MediaWiki_$major | MediaWiki $major ]] - [[ https://www.mediawiki.org/wiki/Special:MyLanguage/MediaWiki_$major/$wmfnum | $wmfnum ]] -- {icon calendar} **$year** week **$week** ==
- MediaWiki train deployment schedule for the week of **$weekday, $month $monthday**
+=  {icon calendar} **$year** week **$week** {icon angle-right} {icon book} [[ https://www.mediawiki.org/wiki/Special:MyLanguage/MediaWiki_$major/$wmfnum | $major-$wmfnum Roadmap ]] {icon angle-right} {icon git} [[/source/mediawiki/history/wmf%252F$major-$wmfnum|wmf/$major-$wmfnum  ]]
+
+This MediaWiki Train Deployment is scheduled for the week of **$weekday, $month $monthday**:
 
 |**Monday $month $monthday**|**Tuesday, {$tue}**      | **Wednesday, {$wed}**   | **Thursday, {$thu}** | **Friday**               |
 |---------------------------|-------------------------|-------------------------|----------------------|--------------------------|
@@ -147,7 +148,7 @@ class ReleaseDetailsCustomField
 
 * See https://wikitech.wikimedia.org/wiki/Deployments for full schedule.
 
-== {icon info-circle} How this works:
+== {icon info-circle} How this works
 * Any serious bugs affecting `$wmfnum` should be added as subtasks beneith this one.
 ** Use the `Edit Related Tasks` menu to add one.
 * Any open subtasks block the train from moving forward. This means no further deployments until the blockers are resolved.
