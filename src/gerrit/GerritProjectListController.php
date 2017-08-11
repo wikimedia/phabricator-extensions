@@ -19,7 +19,7 @@ class GerritProjectListController extends GerritProjectController {
     }
 
     $key = end($keys);
-    $temp[$key] = phutil_tag('a', array('href'=>"/diffusion/$callsign", 'title'=>$path), "($callsign) " . $path);
+    $temp[$key] = phutil_tag('a', array('href'=>"/diffusion/$callsign", 'title'=>$path), $key . " ($callsign)");
   }
 
   function arrayToUl($arr, $path='', $depth=1) {
@@ -44,8 +44,7 @@ class GerritProjectListController extends GerritProjectController {
       }
       $items[] = phutil_tag('li', array(), $item);
     }
-    $ul = phutil_tag('ul', array('class'=>'remarkup-list', 'data-path' => $path), $items);
-    return phutil_tag('div', array('style'=>'font-family: monospace;'), $ul);
+    return phutil_tag('ul', array('class'=>'remarkup-list', 'data-path' => $path), $items);
   }
 
   public function showProjectList(AphrontRequest $request, $message="") {
