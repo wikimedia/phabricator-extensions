@@ -480,7 +480,6 @@ class GerritProjectMap {
     'mediawiki/extensions/ImageLink' => 'EILI',
     'mediawiki/extensions/ImageMap' => 'EIMA',
     'mediawiki/extensions/ImageMetrics' => 'EIME',
-    'mediawiki/extensions/ImageTagging' => 'EIMT',
     'mediawiki/extensions/ImageTweaks' => 'EIGT',
     'mediawiki/extensions/ImportArticles' => 'EIAR',
     'mediawiki/extensions/ImportFreeImages' => 'EIFI',
