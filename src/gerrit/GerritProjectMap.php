@@ -797,7 +797,6 @@ class GerritProjectMap {
     'mediawiki/extensions/SemanticSignup' => 'ESSU',
     'mediawiki/extensions/SemanticTasks' => 'ESTA',
     'mediawiki/extensions/SemanticTitle' => 'ESTI',
-    'mediawiki/extensions/SemanticUpdateOnPurge' => 'ESUP',
     'mediawiki/extensions/SemanticWatchlist' => 'ESWL',
     'mediawiki/extensions/SemanticWebBrowser' => 'ESWB',
     'mediawiki/extensions/Sentry' => 'ESNT',
