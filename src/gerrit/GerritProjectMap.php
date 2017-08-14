@@ -203,7 +203,6 @@ class GerritProjectMap {
     'mediawiki/extensions/AdManager' => 'EADM',
     'mediawiki/extensions/AdminLinks' => 'EADL',
     'mediawiki/extensions/Ads' => 'EADS',
-    'mediawiki/extensions/AdvancedMeta' => 'EAME',
     'mediawiki/extensions/Agora' => 'EAGO',
     'mediawiki/extensions/AjaxLogin' => 'EAJL',
     'mediawiki/extensions/AJAXPoll' => 'EAJP',
