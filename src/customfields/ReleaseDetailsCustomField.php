@@ -198,10 +198,14 @@ EOT;
    * @return map of exactly two strings with keys 'prev' and 'next'
    */
   private function getSeries($fieldIndex, $version) {
+    $storage = $this->newStorageObject();
+    $conn = $storage->establishConnection('r');
+    $indexes = array($fieldIndex);
 
     // decompose the version and increment / decrement the minor segment to find
     // the version number for the previous and next version in this series.
     $v = explode(".", $version);
+    
     $minor = $v[3];
     $versions = array();
     if ($minor > 1) {
@@ -209,16 +213,30 @@ EOT;
       $prev = join('.', array($v[0],$v[1],$v[2],$prev));
       $versions[] = $prev;
     } else {
-      $prev = '...';
+      $vprev = $v[1]-1;
+      $prev = "$v[0].$vprev.$v[2]";
+      $prev_series = $this->getEndOfSeries($prev,
+        'DESC', $indexes, $conn, $storage);
+      if (empty($prev_series)) {
+        $prev = '...';
+      } else {
+        $versions[] = $prev_series;
+        $prev = $prev_series;
+      }
     }
 
-    $next = $v[3]+1;
-    $next = join('.', array($v[0],$v[1],$v[2],$next));
-    $versions[] = $next;
 
-    $storage = $this->newStorageObject();
-    $conn = $storage->establishConnection('r');
-    $indexes = array($fieldIndex);
+    $endOfSeries = $this->getEndOfSeries(join('.', array($v[0],$v[1],$v[2])),
+       'DESC', $indexes, $conn, $storage);
+    if ($endOfSeries == $version) {
+      $vnext = $v[1]+1;
+      $next = "$v[0].$vnext.$v[2].1";
+      phlog($next);
+    } else {
+      $next = $v[3]+1;
+      $next = join('.', array($v[0],$v[1],$v[2],$next));
+    }
+    $versions[] = $next;
 
     // dirty manual query of the custom field storage table to get the value
     // for the release.version field for the previous and next version in this
@@ -230,7 +248,6 @@ EOT;
       $storage->getTableName(),
       $indexes,
       $versions);
-
 
     // now save the versions and phids
     $versions = array();
@@ -263,6 +280,23 @@ EOT;
       }
     }
     return $res;
+  }
+
+  private function getEndOfSeries($v, $order, $indexes, $conn, $storage) {
+    
+    $rows = queryfx_all(
+      $conn,
+      'SELECT objectPHID, fieldIndex, fieldValue FROM %T
+        WHERE fieldIndex IN (%Ls) AND fieldValue like %>
+        ORDER BY fieldValue '.$order,
+      $storage->getTableName(),
+      $indexes,
+      $v);
+      phlog($rows);
+      if (empty($rows)) {
+        return false;
+      }
+      return $rows[0]['fieldValue'];
   }
 
 }
