@@ -231,7 +231,6 @@ EOT;
     if ($endOfSeries == $version) {
       $vnext = $v[1]+1;
       $next = "$v[0].$vnext.$v[2].1";
-      phlog($next);
     } else {
       $next = $v[3]+1;
       $next = join('.', array($v[0],$v[1],$v[2],$next));
@@ -292,7 +291,6 @@ EOT;
       $storage->getTableName(),
       $indexes,
       $v);
-      phlog($rows);
       if (empty($rows)) {
         return false;
       }
