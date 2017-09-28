@@ -176,7 +176,7 @@ This MediaWiki Train Deployment is scheduled for the week of **$weekday, $month 
 * See https://wikitech.wikimedia.org/wiki/Deployments for full schedule.
 
 == {icon info-circle} How this works
-* Any serious bugs affecting `$wmfnum` should be added as subtasks beneith this one.
+* Any serious bugs affecting `$wmfnum` should be added as subtasks beneath this one.
 ** Use the `Edit Related Tasks` menu to add one.
 * Any open subtasks block the train from moving forward. This means no further deployments until the blockers are resolved.
 * If something is serious enough to warrant a rollback then you should contact someone on the [[ https://www.mediawiki.org/wiki/MediaWiki_on_IRC | #wikimedia-operations IRC channel ]].
