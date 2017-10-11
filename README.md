@@ -79,7 +79,7 @@ printing the full mapping as a list of html links as seen [here](https://phabric
 
 ### Security Policy Extensions
 
-See [src/policy/README](browse/wmf%252Fstable/src/policy/|src/policy/README)
+See [src/policy/README](https://phabricator.wikimedia.org/source/phab-extensions/browse/wmf%252Fstable/src/policy/)
 
 ### Other Extensions
 
