@@ -77,10 +77,13 @@ corresponding repository "callsigns." The mapping is a static array contained
 in `src/gerrit/GerritProjectMap.php` and `GerritProjectListController` handles
 printing the full mapping as a list of html links as seen [here](https://phabricator.wikimedia.org/r/).
 
+### Security Policy Extensions
+
+See [src/policy/README](browse/wmf%252Fstable/src/policy/|src/policy/README)
+
 ### Other Extensions
 
  These other extensions are used/maintained for use with Wikimedia's
  phabricator installation.
 
-* {rPHES} - https://phabricator.wikimedia.org/diffusion/PHES/
 * {rPHSP} - https://phabricator.wikimedia.org/diffusion/PHSP/

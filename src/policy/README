@@ -1,0 +1,27 @@
+These classes define the wikimedia customizations to phabricator security policy behavior.
+
+Currently this involves 3 cooperating classes to secure access to maniphest tasks
+that are considered either 'sensitive' or 'security bug' (as specified by the security
+custom field on each task)
+
+  1. SecurityPolicyListener applies an initial security policy to tasks submitted with the
+     'security' option set to anything other than 'none.'
+     It will also reset the security policy if anyone tries to override the policy to
+     'public' or 'any user' when the security flag is set to something other than 'none',
+     this is just a sanity check to keep someone from inadvertantly or maliciously
+     revealing a secure task without explicitly setting the security to 'none'
+  2. The default security policy now includes a new custom policy rule, implemented in
+     PhabricatorPolicyRuleTaskSubscribers, which allows anyone subscribed to a task
+     to /view + comment/ on the task. !
+  3. WMFSecurityPolicy class contains static functions related to the implementation
+     of the other two, whereever it's appropriate to abstract the functionality
+     intp a less workflow-specific reusable function.
+
+  Note: The following pre-existing behavior is not changed by the new patch:
+    The task author, the assignee, and any member of the corresponding 'security' project
+    will be able to view/edit the task without explicitly being subscribed.
+
+  Note 2: The custom Herald action related to security policy enforcement is now deprecated
+    and it will now function as a no-op. The related herald rule should be removed from
+    phabricator.
+
