@@ -19,7 +19,7 @@ final class GerritApplication extends PhabricatorApplication {
   }
 
   public function getRoutes() {
-    if (count(self::$routes) > 0) {
+    if (isset(self::$routes) && count(self::$routes) > 0) {
       return self::$routes;
     }
 /*
