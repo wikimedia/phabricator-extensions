@@ -12,6 +12,7 @@ phutil_register_library_map(array(
     'CreatePolicyConduitAPIMethod' => 'src/conduit/CreatePolicyConduitAPIMethod.php',
     'CustomGithubDownloadLinks' => 'src/diffusion/CustomGithubDownloadLinks.php',
     'CustomLoginHandler' => 'src/other/CustomLoginHandler.php',
+    'DeadlineEditEngineSubtype' => 'src/customfields/DeadlineEditEngineSubtype.php',
     'DifferentialApplyPatchWithOnlyGitField' => 'src/customfields/DifferentialApplyPatchWithOnlyGitField.php',
     'ElasticsearchApplication' => 'src/elasticsearch/ElasticsearchApplication.php',
     'GerritApplication' => 'src/gerrit/GerritApplication.php',
@@ -44,6 +45,7 @@ phutil_register_library_map(array(
   'xmap' => array(
     'CreatePolicyConduitAPIMethod' => 'ConduitAPIMethod',
     'CustomLoginHandler' => 'PhabricatorAuthLoginHandler',
+    'DeadlineEditEngineSubtype' => 'PhabricatorEditEngineSubtype',
     'DifferentialApplyPatchWithOnlyGitField' => 'DifferentialCustomField',
     'ElasticsearchApplication' => 'PhabricatorApplication',
     'GerritApplication' => 'PhabricatorApplication',
