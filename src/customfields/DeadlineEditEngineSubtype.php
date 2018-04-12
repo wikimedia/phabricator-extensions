@@ -12,8 +12,11 @@ class DeadlineEditEngineSubtype extends PhabricatorEditEngineSubtype {
   }
 
   public function newTagView($viewer) {
+    $due = null;
     $deadline = $this->getDeadline($viewer);
-    $due = $deadline->getValueForStorage();
+    if ($deadline) {
+      $due = $deadline->getValueForStorage();
+    }
     if ($deadline && $due) {
       $text = phabricator_date($due, $viewer);
       $now = time();
