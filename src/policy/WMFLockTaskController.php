@@ -79,8 +79,16 @@ final class WMFEscalateTaskController extends PhabricatorController {
 
     // See "WMFLockTaskEventListener" for notes.
     $is_locked = !WMFSecurityPolicy::isTaskPublic($task);
-    $can_lock = $viewer->isLoggedIn();
+    if ($is_locked) {
+      return $this->newDialog()
+        ->setTitle(pht('Cannot Lock Task'))
+        ->appendParagraph(
+          pht(
+            'You cannot escalate this task because it is already locked.'))
+        ->addCancelButton($task_uri);
+    }
 
+    $can_lock = WMFSecurityPolicy::userCanLockTask($viewer, $task);
     // Task can't be escalated by the acting user, show a "you can't do this"
     // dialog.
     if (!$can_lock) {

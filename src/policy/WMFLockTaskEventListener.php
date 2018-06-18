@@ -24,7 +24,7 @@ final class WMFEscalateTaskEventListener extends PhabricatorEventListener {
 
     // Figure out if the item will be enabled or disabled in the UI.
     // This assumes any logged-in user can escalate tasks,
-    $can_lock = $viewer->isLoggedIn();
+    $can_lock = WMFSecurityPolicy::userCanLockTask($viewer, $object);
 
     // don't show the link if it's already locked.
     $is_locked = !WMFSecurityPolicy::isTaskPublic($object);

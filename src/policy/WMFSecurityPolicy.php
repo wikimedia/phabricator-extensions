@@ -176,6 +176,28 @@ final class WMFSecurityPolicy
   }
 
 
+  public static function userCanLockTask(PhabricatorUser $user, ManiphestTask $task) {
+    if (!$user->isLoggedIn()) {
+      return false;
+    }
+    $user_phid = $user->getPHID();
+    $author_phid = $task->getAuthorPHID();
+    if ($user_phid == $author_phid) {
+      return true;
+    }
+    $projects = array(
+      self::getProjectByName("Trusted Contributors"),
+      self::getProjectByName("WMF-NDA"),
+      self::getProjectByName("acl*operations-team"),
+    );
+    foreach ($projects as $proj) {
+      if ($proj->isUserMember($user_phid)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   public static function createPrivateSubtask($task) {
     $ops = self::getProjectByName('acl*operations-team');
     $ops_phids = array($ops->getPHID() => $ops->getPHID());
