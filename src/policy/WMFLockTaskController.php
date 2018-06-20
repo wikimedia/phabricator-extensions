@@ -84,7 +84,8 @@ final class WMFEscalateTaskController extends PhabricatorController {
         ->setTitle(pht('Cannot Lock Task'))
         ->appendParagraph(
           pht(
-            'You cannot escalate this task because it is already locked.'))
+            'You cannot lock this task because it is already protected by a ' .
+            'custom security policy.'))
         ->addCancelButton($task_uri);
     }
 
@@ -97,7 +98,7 @@ final class WMFEscalateTaskController extends PhabricatorController {
         ->appendParagraph(
           pht(
             'You do not have permission to escalate tasks as security issues. '.
-            'This action can be taken by logged in users.'))
+            'This action can only be taken by authorized users.'))
         ->addCancelButton($task_uri);
     }
 

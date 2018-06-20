@@ -191,7 +191,8 @@ final class WMFSecurityPolicy
       self::getProjectByName("acl*operations-team"),
     );
     foreach ($projects as $proj) {
-      if ($proj->isUserMember($user_phid)) {
+      if ($proj instanceof PhabricatorProject &&
+          $proj->isUserMember($user_phid)) {
         return true;
       }
     }
