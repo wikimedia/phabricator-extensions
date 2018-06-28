@@ -12,7 +12,7 @@ final class WMFSecurityPolicy
    * @param string $projectName
    * @return PhabricatorProject|null
    */
-  public static function getProjectByName($projectName, $viewer=null) {
+  public static function getProjectByName($projectName, $viewer=null, $needMembers=false) {
     if ($viewer === null) {
       $viewer = PhabricatorUser::getOmnipotentUser();
     }
@@ -20,7 +20,7 @@ final class WMFSecurityPolicy
     $query = new PhabricatorProjectQuery();
     $project = $query->setViewer($viewer)
                      ->withNames(array($projectName))
-                     ->needMembers(false)
+                     ->needMembers($needMembers)
                      ->executeOne();
     return $project;
   }
@@ -186,16 +186,22 @@ final class WMFSecurityPolicy
       return true;
     }
     $projects = array(
-      self::getProjectByName("Trusted Contributors"),
-      self::getProjectByName("WMF-NDA"),
-      self::getProjectByName("acl*operations-team"),
+      self::getProjectByName("Trusted Contributors", $user, true),
+      self::getProjectByName("WMF-NDA", $user, true),
+      self::getProjectByName("acl*operations-team",  $user, true),
     );
+
     foreach ($projects as $proj) {
-      if ($proj instanceof PhabricatorProject &&
-          $proj->isUserMember($user_phid)) {
-        return true;
+      try {
+        if ($proj instanceof PhabricatorProject &&
+            $proj->isUserMember($user_phid)) {
+          return true;
+        }
+      } catch(PhabricatorDataNotAttachedException $e) {
+        continue;
       }
     }
+
     return false;
   }
 
