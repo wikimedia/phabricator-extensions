@@ -37,7 +37,7 @@ final class WMFSecurityPolicy
       case 'security-bug':
         return WMFSecurityPolicy::getProjectByName('security');
       case 'ops-access-request':
-        return WMFSecurityPolicy::getProjectByName('Ops-Access-Requests');
+        return WMFSecurityPolicy::getProjectByName('SRE-Access-Requests');
       default:
         return false;
     }
@@ -186,7 +186,7 @@ final class WMFSecurityPolicy
       return true;
     }
     $projects = array(
-      self::getProjectByName("Trusted Contributors", $user, true),
+      self::getProjectByName("Trusted-Contributors", $user, true),
       self::getProjectByName("WMF-NDA", $user, true),
       self::getProjectByName("acl*operations-team",  $user, true),
     );
