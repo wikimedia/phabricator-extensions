@@ -58,8 +58,7 @@ final class MediaWikiUserpageCustomField extends PhabricatorUserCustomField {
     $account = $this->getExternalAccount();
 
     if (! $account || !strlen($account->getAccountURI())) {
-      //return pht('Unknown');
-      $userpage_uri = "https://en.wikipedia.org/wiki/User:MModell_(WMF)";
+      return pht('Unknown');
     } else {
       $userpage_uri = urldecode($account->getAccountURI());
     }
