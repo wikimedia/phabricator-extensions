@@ -58,24 +58,30 @@ final class MediaWikiUserpageCustomField extends PhabricatorUserCustomField {
     $account = $this->getExternalAccount();
 
     if (! $account || !strlen($account->getAccountURI())) {
-      return pht('Unknown');
+      //return pht('Unknown');
+      $userpage_uri = "https://en.wikipedia.org/wiki/User:MModell_(WMF)";
+    } else {
+      $userpage_uri = urldecode($account->getAccountURI());
     }
 
-    $uri = urldecode($account->getAccountURI());
-
     // Split on the User: part of the userpage uri
-    $name = explode('User:',$uri);
+    $name = explode('User:',$userpage_uri);
     // grab the part after User:
-    $name = array_pop($name);
+    $rawname = array_pop($name);
     // decode for display:
-    $name = urldecode(rawurldecode($name));
+    $name = urldecode(rawurldecode($rawname));
+    $accounts_uri = array('href' =>
+                      "https://meta.wikimedia.org/wiki/Special:CentralAuth/" .
+                      $rawname);
+    $accounts_text = pht('Global Accounts');
+    $userpage_uri = array('href' => $userpage_uri);
 
-    return phutil_tag(
-      'a',
-      array(
-        'href' => $uri
-      ),
-      $name);
+    return phutil_tag('span', array(), array(
+      phutil_tag('a', $userpage_uri, $name),
+      ' [ ',
+      phutil_tag('a', $accounts_uri, $accounts_text),
+      ' ]'
+    ));
   }
 
 
