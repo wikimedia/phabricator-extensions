@@ -70,7 +70,7 @@ final class MediaWikiUserpageCustomField extends PhabricatorUserCustomField {
     // decode for display:
     $name = urldecode(rawurldecode($rawname));
     $accounts_uri = array('href' =>
-                      "https://meta.wikimedia.org/wiki/Special:CentralAuth/" .
+                      "https://meta.wikimedia.org/wiki/Special:CentralAuth?target=" .
                       $rawname);
     $accounts_text = pht('Global Accounts');
     $userpage_uri = array('href' => $userpage_uri);
