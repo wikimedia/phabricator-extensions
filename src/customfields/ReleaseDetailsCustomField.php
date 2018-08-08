@@ -10,28 +10,53 @@ class ReleaseDetailsCustomField
   public function __construct() {
     $this->textproxy = id(new PhabricatorStandardCustomFieldText())
       ->setFieldKey($this->getFieldKey())
+      ->setRawStandardFieldKey($this->getModernFieldKey())
       ->setApplicationField($this)
       ->setFieldConfig(array(
         'name' => $this->getFieldName(),
         'description' => $this->getFieldDescription(),
       ));
-    $this->setProxy($this->textproxy);
+    //$this->setProxy($this->textproxy);
   }
 
 
   public function getFieldKey() {
-    return 'wmf:releasedetails';
+    return 'wmf:release.details';
   }
 
   public function getModernFieldKey() {
-    return 'releasedetails';
+    return 'release.details';
   }
 
   public function getFieldName() {
-    return 'Release Details';
+    return pht('Release Details');
+  }
+
+  public function getFieldDescription() {
+    return pht('Auto-generated release schedule details.');
   }
 
   public function shouldAppearInApplicationSearch() {
+    return false;
+  }
+
+  public function shouldAppearInApplicationTransactions() {
+    return false;
+  }
+
+  public function shouldAppearInConduitTransactions() {
+    return false;
+  }
+
+  public function shouldAppearInConduitDictionary() {
+    return false;
+  }
+
+  public function shouldAppearInEditEngine() {
+    return false;
+  }
+
+  public function shouldAppearInEditView() {
     return false;
   }
 
@@ -43,12 +68,12 @@ class ReleaseDetailsCustomField
     return $task->getSubtype() == 'release';
   }
 
-  public function shouldAppearInEditView() {
-    return true;
+  public function shouldUseStorage() {
+    return false;
   }
 
   public function getFieldValue() {
-    return $this->textproxy->getFieldValue();
+    return '';//return $this->textproxy->getFieldValue();
   }
 
   public function renderPropertyViewLabel() {
@@ -61,6 +86,7 @@ class ReleaseDetailsCustomField
   public function getStandardCustomFieldNamespace() {
     return 'maniphest';
   }
+
 
   public function renderEditControl(array $handles) {
     return id(new PhabricatorRemarkupControl())
@@ -80,6 +106,9 @@ class ReleaseDetailsCustomField
     $version = "";
     $fieldIndex = null;
     foreach($fields as $key => $field) {
+      if (!$field->shouldUseStorage()) {
+        continue;
+      }
       $val = $field->getValueForStorage();
       if ($key == 'std:maniphest:release.date' && $val) {
         $date->setTimestamp((int)$val);
@@ -205,7 +234,7 @@ EOT;
     // decompose the version and increment / decrement the minor segment to find
     // the version number for the previous and next version in this series.
     $v = explode(".", $version);
-    
+
     $minor = $v[3];
     $versions = array();
     if ($minor > 1) {
@@ -258,14 +287,18 @@ EOT;
       $versions[$phid] = $taskVersion;
     }
 
-    // now look up the monograms for the phids we found
-    $query = id(new ManiphestTaskQuery())
-      ->setViewer($this->getViewer())
-      ->withPHIDs($phids);
-    $tasks = $query->execute();
-
     $res = array('prev' => '...', 'next' => '...',
                  'prev-version' => '...', 'next-version' => '...');
+    if (empty($phids)) {
+      return $res;
+    }
+
+    // now look up the monograms for the phids we found
+    $tasks = id(new ManiphestTaskQuery())
+      ->setViewer($this->getViewer())
+      ->withPHIDs($phids)
+      ->execute();
+
     foreach ($tasks as $id => $task) {
       $monogram = $task->getMonogram();
       $phid = $task->getPHID();
@@ -282,7 +315,7 @@ EOT;
   }
 
   private function getEndOfSeries($v, $order, $indexes, $conn, $storage) {
-    
+
     $rows = queryfx_all(
       $conn,
       'SELECT objectPHID, fieldIndex, fieldValue FROM %T

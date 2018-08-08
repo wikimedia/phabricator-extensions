@@ -64,9 +64,6 @@ class DeadlineEditEngineSubtype extends PhabricatorEditEngineSubtype {
     $fields = $field_list->getFields();
     $field_list->readFieldsFromStorage($task);
     $deadline = $fields['std:maniphest:deadline.due'];
-
-
-
     return $deadline;
   }
 
