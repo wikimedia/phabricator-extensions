@@ -267,4 +267,16 @@ final class PhabricatorMediaWikiAuthProvider
     return null;
   }
 
+  protected function getContentSecurityPolicyFormActions() {
+
+    $csp_actions = $this->getAdapter()->getContentSecurityPolicyFormActions();
+    $uri = new phutilURI($csp_actions[0]);
+    $mobile_uri = new phutilURI($uri);
+    $domain = preg_replace('/^www\./', 'm.', $uri->getDomain());
+    $mobile_uri->setDomain($domain);
+    if ((string)$uri != (string)$mobile_uri) {
+      $csp_actions[] = (string)$mobile_uri;
+    }
+    return $csp_actions;
+  }
 }
