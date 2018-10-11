@@ -99,12 +99,14 @@ class ReleaseDetailsCustomField
 
   public function renderPropertyViewValue(array $handles) {
     $obj = $this->getObject();
+    $taskid = $obj->getId();
     $fields = $obj->getCustomFields();
     $field_list = $fields->getCustomFieldList('view');
     $fields = $field_list->getFields();
     $date = new DateTime();
     $version = "";
     $fieldIndex = null;
+
     foreach($fields as $key => $field) {
       if (!$field->shouldUseStorage()) {
         continue;
@@ -154,7 +156,7 @@ class ReleaseDetailsCustomField
 
     // vars to pass to template:
     $vars = compact("major", "wmfnum", "year", "week", "weekday", "month",
-      "monthday", "tue", "wed", "thu", "series");
+      "monthday", "tue", "wed", "thu", "series", "taskid");
 
     // render template to remarkupL
     $remarkup = $this->renderTrainDeployDetails($vars);
@@ -206,9 +208,9 @@ This MediaWiki Train Deployment is scheduled for the week of **$weekday, $month 
 
 == {icon info-circle} How this works
 * Any serious bugs affecting `$wmfnum` should be added as subtasks beneath this one.
-** Use the `Edit Related Tasks` menu to add one.
+** Use [[/maniphest/task/edit/form/47/?parent=$taskid&template=$taskid&status=open|this form]] to create one.
 * Any open subtasks block the train from moving forward. This means no further deployments until the blockers are resolved.
-* If something is serious enough to warrant a rollback then you should contact someone on the [[ https://www.mediawiki.org/wiki/MediaWiki_on_IRC | #wikimedia-operations IRC channel ]].
+* If something is serious enough to warrant a rollback then you should bring it to the attention of deployers on the [[ https://www.mediawiki.org/wiki/MediaWiki_on_IRC | #wikimedia-operations IRC channel ]].
 
 ----
 == {icon link} Related Links ==
@@ -253,7 +255,6 @@ EOT;
         $prev = $prev_series;
       }
     }
-
 
     $endOfSeries = $this->getEndOfSeries(join('.', array($v[0],$v[1],$v[2])),
        'DESC', $indexes, $conn, $storage);
@@ -315,19 +316,32 @@ EOT;
   }
 
   private function getEndOfSeries($v, $order, $indexes, $conn, $storage) {
+    static $versions = array();
 
-    $rows = queryfx_all(
-      $conn,
-      'SELECT objectPHID, fieldIndex, fieldValue FROM %T
-        WHERE fieldIndex IN (%Ls) AND fieldValue like %>
-        ORDER BY fieldValue '.$order,
-      $storage->getTableName(),
-      $indexes,
-      $v);
+    if (!isset($versions[$v])) {
+      $rows = queryfx_all(
+        $conn,
+        'SELECT objectPHID, fieldIndex, fieldValue FROM %T
+          WHERE fieldIndex IN (%Ls) AND fieldValue like %>',
+        $storage->getTableName(),
+        $indexes,
+        $v);
+
       if (empty($rows)) {
         return false;
       }
-      return $rows[0]['fieldValue'];
+
+      $sorted = ipull($rows, 'fieldValue');
+      usort($sorted, 'version_compare');
+      $versions[$v] = array(reset($sorted), end($sorted));
+    }
+
+    if ($order == "DESC") {
+      return end($versions[$v]);
+    } else {
+      return reset($versions[$v]);
+    }
+
   }
 
 }
