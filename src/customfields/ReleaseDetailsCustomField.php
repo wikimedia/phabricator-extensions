@@ -208,7 +208,7 @@ This MediaWiki Train Deployment is scheduled for the week of **$weekday, $month 
 
 == {icon info-circle} How this works
 * Any serious bugs affecting `$wmfnum` should be added as subtasks beneath this one.
-** Use [[/maniphest/task/edit/form/47/?parent=$taskid&template=$taskid&status=open|this form]] to create one.
+** Use [[/maniphest/task/edit/form/46/?parent=$taskid|this form]] to create one.
 * Any open subtasks block the train from moving forward. This means no further deployments until the blockers are resolved.
 * If something is serious enough to warrant a rollback then you should bring it to the attention of deployers on the [[ https://www.mediawiki.org/wiki/MediaWiki_on_IRC | #wikimedia-operations IRC channel ]].
 
