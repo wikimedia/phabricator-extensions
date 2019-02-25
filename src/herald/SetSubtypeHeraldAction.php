@@ -41,7 +41,8 @@ class SetSubtypeHeraldAction extends HeraldAction {
   }
 
   protected function getDatasourceValueMap() {
-    return id(new ManiphestTask())->newEditEngineSubtypeMap();
+    $map = id(new ManiphestTask())->newEditEngineSubtypeMap();
+    return $map->getSubtypes();
   }
 
   public function applyEffect($object,  HeraldEffect $effect) {
