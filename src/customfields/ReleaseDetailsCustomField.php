@@ -195,27 +195,52 @@ class ReleaseDetailsCustomField
 
   private function renderTrainDeployDetails($vars) {
     extract($vars);
+    $SWAT = "[[https://wikitech.wikimedia.org/wiki/SWAT_deploys|SWAT deployments]]";
+    $tuesday = pht("Branch `%s` and deploy to %s Wikis.", $wmfnum, 'Group 0');
+    $wednesday = pht("Deploy `%s` to %s Wikis.", $wmfnum, 'Group 1');
+    $thursday = pht("Deploy `%s` to %s Wikis.", $wmfnum, 'all');
+    $friday = pht("No deployments on fridays");
+    $forTheWeekOf = pht('This MediaWiki Train Deployment is scheduled for the week of');
+    $howThisWorks = pht('How this works');
+    $openSubtasksBlockDeployment = pht(
+      'Any open subtask(s) block the train from moving forward.' . 
+      'This means no further deployments until the blockers are resolved.');
+    $addBlockersAsSubtasks = pht(
+      'Any serious bugs affecting `%s` should be added as subtasks beneath this one.',
+      $wmfnum);
+    $alertDevelopersForRollback = pht(
+      'If something is serious enough to warrant a rollback then you should bring it to the attention of deployers ' .
+      'on the [[ https://www.mediawiki.org/wiki/MediaWiki_on_IRC | #wikimedia-operations IRC channel ]].'
+    );
+    $scheduleLink = pht('See https://wikitech.wikimedia.org/wiki/Deployments for full schedule.');
+    $subtaskLink = pht('Use [[%s|this form]] to create one.', "/maniphest/task/edit/form/46/?parent=$taskid");
+    $relatedLinks = pht('Related Links');
+    $moreInfoLink = pht(
+      'For more info about deployment blockers, see '.
+      '[[ https://wikitech.wikimedia.org/wiki/Deployments/Holding_the_train | Holding the train ]].');
+    
     return <<<EOT
-=  {icon calendar} **$year** week **$week** {icon angle-right} {icon book} [[ https://www.mediawiki.org/wiki/Special:MyLanguage/MediaWiki_$major/$wmfnum | $major-$wmfnum Changes ]] {icon angle-right} {icon git} [[/source/mediawiki/history/wmf%252F$major-$wmfnum|wmf/$major-$wmfnum  ]]
+=  {icon calendar} **$year** week **$week** {icon angle-right} {icon book} [[ https://www.mediawiki.org/wiki/Special:MyLanguage/MediaWiki_$major/$wmfnum | $major-$wmfnum Changes ]] {icon angle-right} {icon git} [[/source/mediawiki/history/wmf%252F$major.0-$wmfnum|wmf/$major.0-$wmfnum  ]]
 
-This MediaWiki Train Deployment is scheduled for the week of **$weekday, $month $monthday**:
+$forTheWeekOf **$weekday, $month $monthday**:
 
-|**Monday $month $monthday**|**Tuesday, {$tue}**      | **Wednesday, {$wed}**   | **Thursday, {$thu}** | **Friday**               |
-|---------------------------|-------------------------|-------------------------|----------------------|--------------------------|
-|SWAT deployments only      |Branch `$wmfnum`, Deploy to Group 0 Wikis| Deploy `$wmfnum` to Group 1 Wikis | Deploy `$wmfnum` to all Wikis  |No deployments on fridays |
+|**Monday $month $monthday**|**Tuesday, {$tue}**      | **Wednesday, {$wed}**   | **Thursday, {$thu}** | **Friday** |
+|---------------------------|-------------------------|-------------------------|----------------------|------------|
+|$SWAT only.                |$tuesday                 | $wednesday              | $thursday            | $friday    |
 
-* See https://wikitech.wikimedia.org/wiki/Deployments for full schedule.
+* $scheduleLink
 
-== {icon info-circle} How this works
-* Any serious bugs affecting `$wmfnum` should be added as subtasks beneath this one.
-** Use [[/maniphest/task/edit/form/46/?parent=$taskid|this form]] to create one.
-* Any open subtasks block the train from moving forward. This means no further deployments until the blockers are resolved.
-* If something is serious enough to warrant a rollback then you should bring it to the attention of deployers on the [[ https://www.mediawiki.org/wiki/MediaWiki_on_IRC | #wikimedia-operations IRC channel ]].
+== {icon info-circle} $howThisWorks
+* $addBlockersAsSubtasks
+** $subtaskLink
+* $openSubtasksBlockDeployment
+* $alertDevelopersForRollback
+* $moreInfoLink
 
 ----
-== {icon link} Related Links ==
+== {icon link} $relatedLinks ==
 * {icon map-marker} [[https://www.mediawiki.org/wiki/MediaWiki_$major/Roadmap|MediaWiki $major/Roadmap]]
-* {icon code-fork} [[/source/mediawiki/compare/?head=wmf%2F$major-$wmfnum&against=master|Commits cherry-picked to $major-$wmfnum ]]
+* {icon code-fork} [[/source/mediawiki/compare/?head=wmf%2F$major.0-$wmfnum&against=master|Commits cherry-picked to $major.0-$wmfnum ]]
 
 == {icon arrows-h} Other Deployments ==
 EOT;
@@ -256,8 +281,10 @@ EOT;
       }
     }
 
-    $endOfSeries = $this->getEndOfSeries(join('.', array($v[0],$v[1],$v[2])),
-       'DESC', $indexes, $conn, $storage);
+    $endOfSeries = $this->getEndOfSeries(
+      join('.', array($v[0],$v[1],$v[2])),
+      'DESC', $indexes, $conn, $storage);
+    
     if ($endOfSeries == $version) {
       $vnext = $v[1]+1;
       $next = "$v[0].$vnext.$v[2].1";
