@@ -33,6 +33,7 @@ phutil_register_library_map(array(
     'ProjectBurnupGraphProfileMenuItem' => 'src/panel/ProjectBurnupGraphProfileMenuItem.php',
     'ProjectOpenTasksProfileMenuItem' => 'src/panel/ProjectOpenTasksProfileMenuItem.php',
     'ReleaseDetailsCustomField' => 'src/customfields/ReleaseDetailsCustomField.php',
+    'RollbackTransactionsWorkflow' => 'src/workflow/RollbackTransactionsWorkflow.php',
     'SecurityPolicyEnforcerAction' => 'src/policy/SecurityPolicyEnforcerAction.php',
     'SetSubtypeHeraldAction' => 'src/herald/SetSubtypeHeraldAction.php',
     'UserTransactionsConduitAPIMethod' => 'src/conduit/UserTransactionsQueryConduitAPIMethod.php',
@@ -41,9 +42,13 @@ phutil_register_library_map(array(
     'WMFExtensionsApplication' => 'src/policy/WMFExtensionsApplication.php',
     'WMFSecurityPolicy' => 'src/policy/WMFSecurityPolicy.php',
     'WMFSubscribersPolicyRule' => 'src/policy/WMFSubscribersPolicyRule.php',
+    'WikimediaCLIWorkflow' => 'src/workflow/WMFRollbackWorkflow.php',
     'WmfConfigSource' => 'src/other/WmfConfigSource.php',
   ),
-  'function' => array(),
+  'function' => array(
+    'clog' => 'scripts/init/init-script.php',
+    'init_script' => 'scripts/init/init-script.php',
+  ),
   'xmap' => array(
     'CreatePolicyConduitAPIMethod' => 'ConduitAPIMethod',
     'CustomLoginHandler' => 'PhabricatorAuthLoginHandler',
@@ -70,6 +75,7 @@ phutil_register_library_map(array(
       'ManiphestCustomField',
       'PhabricatorStandardCustomFieldInterface',
     ),
+    'RollbackTransactionsWorkflow' => 'WikimediaCLIWorkflow',
     'SecurityPolicyEnforcerAction' => 'HeraldAction',
     'SetSubtypeHeraldAction' => 'HeraldAction',
     'UserTransactionsConduitAPIMethod' => 'ConduitAPIMethod',
@@ -77,6 +83,7 @@ phutil_register_library_map(array(
     'WMFEscalateTaskEventListener' => 'PhabricatorEventListener',
     'WMFExtensionsApplication' => 'PhabricatorApplication',
     'WMFSubscribersPolicyRule' => 'PhabricatorPolicyRule',
+    'WikimediaCLIWorkflow' => 'PhabricatorManagementWorkflow',
     'WmfConfigSource' => 'PhabricatorConfigSiteSource',
   ),
 ));

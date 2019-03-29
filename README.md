@@ -81,6 +81,10 @@ printing the full mapping as a list of html links as seen [here](https://phabric
 
 See [src/policy/README](https://phabricator.wikimedia.org/source/phab-extensions/browse/wmf%252Fstable/src/policy/)
 
+### Transaction Rollback
+
+There is a command line tool in bin/rollback which can be used to roll back transactional edits on Maniphest tasks. Other phabricator applications could be supported with a little effort, however, none are supported currently. See `src/workflow/RollbackTransactionsWorkflow.php`
+
 ### Other Extensions
 
  These other extensions are used/maintained for use with Wikimedia's
