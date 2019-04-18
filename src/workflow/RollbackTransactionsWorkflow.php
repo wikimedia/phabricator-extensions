@@ -80,7 +80,11 @@ extends WikimediaCLIWorkflow
             'help' => pht(
               'Limit the number of transaction rows to process. Default: 10000'
             ),
-          )
+          ),
+          array(
+            'name' => 'verbose',
+            'help' => pht('Show verbose output.'),
+          ),
         )
       );
   }
@@ -107,21 +111,36 @@ extends WikimediaCLIWorkflow
         pht('The specified username / userPHID was not found')
       );
     }
+    if ($targetUser->getIsAdmin()) {
+      throw new Exception(
+        pht('You cannot roll back the activity of a privileged user.'));
+    }
+
+    if (!$targetUser->getIsDisabled()) {
+      throw new Exception(
+        pht('You must disable the user before rolling back their activity'));
+    }
     return $targetUser;
   }
 
   public function execute(PhutilArgumentParser $args)
   {
-    $console = PhutilConsole::getConsole();
-    $viewer = PhabricatorUser::getOmnipotentUser();
-    $targetUser = $this->getTargetUser($args);
-    $userPHID = $targetUser->getPHID();
-    $this->dryrun = $args->getArg('dryrun');
-    $this->deleteTransactions = $args->getArg('delete');
-    clog($this->dryrun);
-    $offset = (int)$args->getArg('offset');
-    $limit = (int)$args->getArg('limit');
-
+    try {
+      $console = PhutilConsole::getConsole();
+      $viewer = PhabricatorUser::getOmnipotentUser();
+      $targetUser = $this->getTargetUser($args);
+      $userPHID = $targetUser->getPHID();
+      clog::$show_verbose = $args->getArg('verbose');
+      $this->dryrun = $args->getArg('dryrun');
+      $this->deleteTransactions = $args->getArg('delete');
+      //clog::log($this->dryrun);
+      $offset = (int)$args->getArg('offset');
+      $limit = (int)$args->getArg('limit');
+    } catch(Exception $e) {
+      clog::error($e->getMessage());
+      clog::log('Aborting');
+      return false;
+    }
     $columns = [
       "t.phid",
       "t.objectPHID",
@@ -320,7 +339,8 @@ extends WikimediaCLIWorkflow
     $done = array();
     $skipped = array();
     $t = $instance->getMonogram();
-    clog("Processing ".count($data['transactions'])." transactions on $t");
+
+    clog::log("Found <fg:yellow>".count($data['transactions'])."</fg> transactions on __<fg:blue>$t</fg>__");
     foreach ($data['transactions'] as $trns) {
       $oldValue = $this->normalizeValue($trns['oldValue']);
       $newValue = $this->normalizeValue($trns['newValue']);
@@ -329,16 +349,16 @@ extends WikimediaCLIWorkflow
         $field = $this->fieldMap[$type];
       } else if (isset($data['fields'][$type])) {
         $field = $type;
-      } else if ($type == 'core:customfield') {
+      } else if ($type == 'core:customfield' && isset($metadata)) {
         $field = $data['metadata']['customfield:key'];
       } else {
         $field = null;
-        clog("no field for type", $type);
+        clog::verbose("no field for type", $type);
       }
 
       if (isset($data['fields'][$field])) {
         $dbValue = $this->normalizeValue($data['fields'][$field]);
-        //clog(array("fld" => $field, "old" => $oldValue, "new"=> $newValue, "obj" => $dbValue));
+        //clog::log(array("fld" => $field, "old" => $oldValue, "new"=> $newValue, "obj" => $dbValue));
         if ($newValue === $dbValue) {
           $data['fields'][$field] = $oldValue;
           if ($field == 'subscribers') {
@@ -360,7 +380,7 @@ extends WikimediaCLIWorkflow
         } else {
           $skipped[] = $trns;
           $console->writeErr(
-            "<fg:red>*</fg> Edit conflict: <fg:yellow>%s</fg> was edited by someone else.\n",
+            " <fg:red>*</fg> Edit conflict: __<fg:yellow>%s</fg>__ was edited by someone else.\n",
             $field);
         }
       } else if ($field === null) {
@@ -368,43 +388,52 @@ extends WikimediaCLIWorkflow
       } else if ($field == 'comment') {
         $done[] = $trns;
       } else {
-        clog("unknown type: $type");
-        clog($data);
+        clog::error("Unknown type: $type");
+        clog::verbose($data);
       }
     }
     if (count($done)) {
       if (!$this->dryrun) {
         try {
-          clog('Saving task');
+          clog::log('Saving task');
           $instance->save();
         } catch (AphrontQueryException $e) {
-          clog($e->getMessage());
+          clog::error($e->getMessage());
         }
         try {
-          clog('Saving edges');
+          clog::log('Saving edges');
           $this->edgeEditor->save();
         } catch (Exception $e) {
-          clog($e->getMessage());
+          clog::error($e->getMessage());
         }
       }
-      clog("Done:");
+      $doneCount = count($done);
+      $skipCount = count($skipped);
+      clog::log("Processed: <fg:green>$doneCount</fg>, Skipped: <fg:yellow>$skipCount</fg>");
       $toDelete = array();
       foreach ($done as $trns) {
-        clog($trns);
+        clog::verbose(" <fg:green>*</fg> ". $trns['phid']);
+        clog::verbose($trns);
         $toDelete[] = $trns['phid'];
       }
-      if (!$this->dryrun && !empty($toDelete) && $this->deleteTransactions) {
-        clog('Deleting transactions.');
-        $transactionClass = new ManiphestTransaction();
-        $connection = id($transactionClass)->establishConnection('r');
-        queryfx($connection,
-          "DELETE FROM %R WHERE phid IN (%Ls)",
-          $transactionClass,
-          $toDelete);
+      clog::verbose(array('Skipped', $skipped));
+
+      if ( !empty($toDelete) && $this->deleteTransactions) {
+        if ($this->dryrun) {
+          clog::verbose('Dry run, not deleting transactions');
+        } else {
+          clog::log('Deleting transactions.');
+          $transactionClass = new ManiphestTransaction();
+          $connection = id($transactionClass)->establishConnection('r');
+          queryfx($connection,
+            "DELETE FROM %R WHERE phid IN (%Ls)",
+            $transactionClass,
+            $toDelete);
+        }
       }
+
     }
-    $skipCount = count($skipped);
-    clog("Skipped: $skipCount");
+    clog::log("----");
     return $data;
   }
 

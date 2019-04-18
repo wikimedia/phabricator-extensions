@@ -29,14 +29,49 @@ function init_script(array $options = array())
   PhabricatorEnv::initializeScriptEnvironment(false);
 }
 
-function clog($args, $err=false) {
-  $args = func_get_args();
-  if (count($args) == 1) {
-    $args = array_shift($args);
+class clog {
+  static $show_verbose = false;
+
+  static function log($args, $err=false) {
+    $args = func_get_args();
+    if (count($args) == 1) {
+      $args = array_shift($args);
+    }
+    $console = PhutilConsole::getConsole();
+    if (!is_string($args)) {
+      if (is_string($args[0]) && count($args) == 2) {
+        $args = $args[0] ." ". print_r($args[1], true);
+      } else {
+        $args = print_r($args, true);
+      }
+    }
+
+    $console->writeOut($args."\n");
   }
-  if (!is_string($args)) {
-    $args = print_r($args, true);
+
+  static function verbose($args) {
+    $args = func_get_args();
+    if (self::$show_verbose && (count($args) > 1 || !empty($args[0]))) {
+      self::log($args);
+    }
   }
-  $console = PhutilConsole::getConsole();
-  $console->writeOut($args."\n");
+
+  static function error($args) {
+    $args = func_get_args();
+    if (count($args) == 1 && is_string($args[0])) {
+      $msg = " <fg:red>__Error:__</fg> **".$args[0]."**";
+      self::log($msg);
+    } else {
+      self::log(' <fg:red>Error:</fg>', $args);
+    }
+  }
+
+  static function warn($args) {
+    $args = func_get_args();
+    if (count($args) == 2 && is_string($args[0])) {
+      self::log(" <fg:yellow>*</fg> $args[0]:", $args[1]);
+    } else {
+      self::log(' <fg:yellow>*</fg> ', $args);
+    }
+  }
 }
