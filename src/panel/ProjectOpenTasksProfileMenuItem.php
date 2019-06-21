@@ -32,15 +32,15 @@ final class ProjectOpenTasksProfileMenuItem
     return $this->getDefaultName();
   }
 
-  protected function newNavigationMenuItems(
+  protected function newMenuItemViewList(
     PhabricatorProfileMenuItemConfiguration $config) {
 
     $object = $config->getProfileObject();
 
-    $href = '/maniphest/?project='.$object->getPHID().'&statuses=open()&group=none&order=newest#R';
+    $uri = '/maniphest/?project='.$object->getPHID().'&statuses=open()&group=none&order=newest#R';
 
-    $item = $this->newItem()
-      ->setHref($href)
+    $item = $this->newItemView()
+      ->setUri($uri)
       ->setName($this->getDisplayName($config))
       ->setIcon('fa-anchor');
 

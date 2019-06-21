@@ -44,9 +44,9 @@ phutil_register_library_map(array(
     'WMFSubscribersPolicyRule' => 'src/policy/WMFSubscribersPolicyRule.php',
     'WikimediaCLIWorkflow' => 'src/workflow/WMFRollbackWorkflow.php',
     'WmfConfigSource' => 'src/other/WmfConfigSource.php',
+    'clog' => 'scripts/init/init-script.php',
   ),
   'function' => array(
-    'clog' => 'scripts/init/init-script.php',
     'init_script' => 'scripts/init/init-script.php',
   ),
   'xmap' => array(
