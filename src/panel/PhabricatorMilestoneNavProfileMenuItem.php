@@ -71,8 +71,7 @@ class PhabricatorMilestoneNavProfileMenuItem
     $parent = $this->newItemView();
     $parent->setName('Series')
       ->setIcon('fa-arrows-h')
-      ->setUri("/project/subprojects/{$parent_id}/")
-      ->setType(PHUIListItemView::TYPE_LINK);
+      ->setUri("/project/subprojects/{$parent_id}/");
 
     $items = array($parent);
 
