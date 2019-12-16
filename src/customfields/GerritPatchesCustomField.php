@@ -63,16 +63,22 @@ class GerritPatchesCustomField
   private function getGerritPatchesForTask($taskid) {
     $cache = PhabricatorCaches::getMutableCache();
     $cachekey = 'gerrit:patches:'.$taskid;
-    $changes = $cache->getKey($cachekey);
-    if ($changes == null) {
+    $changes = $cache->getKey($cachekey, null);
+    if ($changes === 1) {
+      return ''; //data is being loaded by another request / process, avoid hammering gerrit
+    } else if ($changes == null) {
+      // attempt to avoid thundering herd:
+      // lock the cache by setting it to 1 while https request is pending, timeout in 10 seconds
+      $cache->setKey($cachekey, 1, 10);
       $changes = HTTPSFuture::loadContent(
         'https://gerrit.wikimedia.org/r/changes/?q=bug:T'.$taskid);
       if ($changes === false) {
+        $cache->setKey($cachekey, null, 10);
         // http fetch failed, don't cache or display anything.
         return '';
       }
       $changes = substr($changes, 4);
-      $cache->setKey($cachekey, $changes, 3600);
+      $cache->setKey($cachekey, $changes, 600);
     }
 
     $changes = json_decode($changes, true);
