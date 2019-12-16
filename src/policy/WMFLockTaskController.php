@@ -125,18 +125,29 @@ final class WMFEscalateTaskController extends PhabricatorController {
 
       $xactions = array();
 
+      // set security topic
       $xactions[] = id(new ManiphestTransaction())
         ->setTransactionType(PhabricatorTransactions::TYPE_CUSTOMFIELD)
         ->setMetadataValue('customfield:key', 'std:maniphest:security_topic')
         ->setOldValue(null)
         ->setNewValue('security-bug');
 
+        // reset priority to 'needs triage' when locking a task
+        $new_priority = '90';
+        $keyword_map = ManiphestTaskPriority::getTaskPriorityKeywordsMap();
+        $priority_keyword = head(idx($keyword_map, $new_priority));
+        $xactions[] = id(new ManiphestTransaction())
+        ->setTransactionType(ManiphestTaskPriorityTransaction::TRANSACTIONTYPE)
+        ->setNewValue($priority_keyword);
+
+      // add a comment:
       $xactions[] = id(clone $template)
         ->setTransactionType(PhabricatorTransactions::TYPE_COMMENT)
         ->attachComment(
           id(clone $comment_template)
             ->setContent($comment_text));
 
+      // add projects to the task:
       if (!empty($project_phids)) {
         $type_edge = PhabricatorTransactions::TYPE_EDGE;
         $xactions[$type_edge] = id(new ManiphestTransaction())
@@ -146,9 +157,15 @@ final class WMFEscalateTaskController extends PhabricatorController {
           ->setNewValue(array('+' => array_fuse($project_phids)));
       }
 
+      // Set view policy
       $xactions[] = id(new ManiphestTransaction())
         ->setTransactionType(PhabricatorTransactions::TYPE_VIEW_POLICY)
         ->setNewValue($policy_phid);
+
+      // set subtype to 'security issue'
+      $xactions[] = id(new ManiphestTransaction())
+        ->setTransactionType(PhabricatorTransactions::TYPE_SUBTYPE)
+        ->setNewValue('security');
 
       $omnipotent_user = PhabricatorUser::getOmnipotentUser();
 
