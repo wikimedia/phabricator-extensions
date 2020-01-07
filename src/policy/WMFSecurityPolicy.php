@@ -21,7 +21,7 @@ final class WMFSecurityPolicy
     }
     $query = new PhabricatorProjectQuery();
     $query->setViewer($viewer)
-              ->withNames($projectNames)
+              ->withNames($projectName)
               ->needMembers($needMembers);
     if (count($projectName) == 1) {
       return $query->executeOne();
