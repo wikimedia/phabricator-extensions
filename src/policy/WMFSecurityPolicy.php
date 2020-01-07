@@ -188,7 +188,7 @@ final class WMFSecurityPolicy
     $projects = array(
       self::getProjectByName("Trusted-Contributors", $user, true),
       self::getProjectByName("WMF-NDA", $user, true),
-      self::getProjectByName("acl*operations-team",  $user, true),
+      self::getProjectByName("acl*sre-team",  $user, true),
     );
 
     foreach ($projects as $proj) {
@@ -206,9 +206,9 @@ final class WMFSecurityPolicy
   }
 
   public static function createPrivateSubtask($task) {
-    $ops = self::getProjectByName('acl*operations-team');
+    $ops = self::getProjectByName('acl*sre-team');
     $ops_phids = array($ops->getPHID() => $ops->getPHID());
-    $project = self::getProjectByName('Ops-Access-Reviews');
+    $project = self::getProjectByName('operations');
     $project_phids = array(
       $project->getPHID(),$ops->getPHID()
     );
