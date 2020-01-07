@@ -16,13 +16,18 @@ final class WMFSecurityPolicy
     if ($viewer === null) {
       $viewer = PhabricatorUser::getOmnipotentUser();
     }
-
+    if (!is_array($projectName)) {
+      $projectName = array($projectName);
+    }
     $query = new PhabricatorProjectQuery();
-    $project = $query->setViewer($viewer)
-                     ->withNames(array($projectName))
-                     ->needMembers($needMembers)
-                     ->executeOne();
-    return $project;
+    $query->setViewer($viewer)
+              ->withNames($projectNames)
+              ->needMembers($needMembers);
+    if (count($projectName) == 1) {
+      return $query->executeOne();
+    } else {
+      return $query->execute();
+    }
   }
 
   /**
