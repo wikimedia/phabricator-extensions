@@ -60,11 +60,21 @@ class SecurityPolicyEnforcerAction extends HeraldAction {
       // edits to secure tasks.
       return new HeraldApplyTranscript($effect,$applied);
     }
-    $security_setting = WMFSecurityPolicy::getSecurityFieldValue($task);
+    $task_phids = array($task->getPHID());
 
-    // only enforce security for the above-listed values of security_setting
-    if ($security_setting=='security-bug' ||
-        $security_setting=='sensitive') {
+    $edge_query = id(new PhabricatorEdgeQuery())
+    ->withSourcePHIDs($task_phids)
+    ->withEdgeTypes(
+      array(
+        PhabricatorProjectObjectHasProjectEdgeType::EDGECONST,
+      ));
+    $edge_query->execute();
+    $task_project_phids = $edge_query->getDestinationPHIDs($task_phids);
+
+    $permanently_private = WMFSecurityPolicy::getProjectByName('PermanentlyPrivate');
+    $is_permanently_private = in_array($permanently_private->getPHID(), $task_project_phids);
+    // only enforce security on 'security' type tasks
+    if ($task->getSubtype() == 'security' || $is_permanently_private) {
 
         // These policies are too-open and would allow anyone to view
         // the protected task. We override these if someone tries to
@@ -72,6 +82,9 @@ class SecurityPolicyEnforcerAction extends HeraldAction {
         $rejected_policies = array(
           PhabricatorPolicies::POLICY_PUBLIC,
           PhabricatorPolicies::POLICY_USER,
+          'obj.subscriptions.subscribers',
+          'obj.project.members',
+          'obj.maniphest.author',
         );
         $forced_policies = array();
     } else {
@@ -79,18 +92,23 @@ class SecurityPolicyEnforcerAction extends HeraldAction {
       return new HeraldApplyTranscript($effect,$applied);
     }
 
-    if ($project = WMFSecurityPolicy::getSecurityProjectForTask($task)) {
-      $project_phids = array($project->getPHID());
-    } else {
-      $project_phids = array();
+    $project_phids = array();
+    $projects = WMFSecurityPolicy::getProjectByName(array('security', 'Security-Team'));
+    $project = WMFSecurityPolicy::getSecurityProjectForTask($task);
+    if ($project instanceof PhabricatorProject) {
+      $projects[] = $project;
     }
-
+    foreach($projects as $project) {
+      $phid = $project->getPHID();
+      $project_phids[$phid] = $phid;
+    }
+    $project_phids = array_values($project_phids);
+    phlog($task->getViewPolicy());
     // check rejected policies first
     if (in_array($task->getViewPolicy(), $rejected_policies)
       ||in_array($task->getEditPolicy(), $rejected_policies)) {
 
-      // only add the 'subscribers' policy rule to security bugs:
-      $include_subscribers = ($security_setting == 'security-bug');
+      $include_subscribers = true;
 
       $view_policy = WMFSecurityPolicy::createCustomPolicy(
         $task,
