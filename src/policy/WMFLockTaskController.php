@@ -114,11 +114,11 @@ final class WMFEscalateTaskController extends PhabricatorController {
       foreach($projects as $project) {
         $project_phids[] = $project->getPHID();
       }
-
+      $security_project  = WMFSecurityPolicy::getProjectByName('security');
       $view_policy = WMFSecurityPolicy::createCustomPolicy(
         $task,
         $task->getAuthorPHID(),
-        $project_phids,
+        [$security_project->getPHID()],
         true
       );
       // view policy and edit policy will be identical:

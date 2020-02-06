@@ -87,9 +87,12 @@ final class WMFSecurityPolicy
    * 2. Members of the project(s) in $project_phids can view/edit
    * 3. $task Subscribers (aka CCs) can view/edit
    *
-   * @param ManiphestTask $task
-   * @param array(PHID) $user_phids
-   * @param array(PHID) $project_phids
+   * @param ManiphestTask $task - the task the policy will apply to
+   * @param array $user_phids - phids of users who can view/edit
+   * @param array project_phids - phids of projects who's members can view/edit
+   * @param bool include_subscribers - determine if subscribers can view/edit
+   * @param PhabricatorPolicy old_policy - if supplied, update the rules to an existing policy
+   * @param boolean save - save the policy to db storage?
    */
   public static function createCustomPolicy(
     $task,
@@ -190,11 +193,7 @@ final class WMFSecurityPolicy
     if ($user_phid == $author_phid) {
       return true;
     }
-    $projects = array(
-      self::getProjectByName("Trusted-Contributors", $user, true),
-      self::getProjectByName("WMF-NDA", $user, true),
-      self::getProjectByName("acl*sre-team",  $user, true),
-    );
+    $projects = self::getProjectByName(["Trusted-Contributors", "WMF-NDA", "acl*sre-team"], $user, true);
 
     foreach ($projects as $proj) {
       try {

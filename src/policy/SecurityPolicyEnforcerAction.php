@@ -73,35 +73,35 @@ class SecurityPolicyEnforcerAction extends HeraldAction {
 
     $permanently_private = WMFSecurityPolicy::getProjectByName('PermanentlyPrivate');
     $is_permanently_private = in_array($permanently_private->getPHID(), $task_project_phids);
-    // only enforce security on 'security' type tasks
-    if ($task->getSubtype() == 'security' || $is_permanently_private) {
 
-        // These policies are too-open and would allow anyone to view
-        // the protected task. We override these if someone tries to
-        // set them on a 'secure task'
-        $rejected_policies = array(
-          PhabricatorPolicies::POLICY_PUBLIC,
-          PhabricatorPolicies::POLICY_USER,
-          'obj.subscriptions.subscribers',
-          'obj.project.members',
-          'obj.maniphest.author',
-        );
-        $forced_policies = array();
-    } else {
-      //do nothing
-      return new HeraldApplyTranscript($effect,$applied);
+    if (!($task->getSubtype() == 'security' || $is_permanently_private)) {
+        // only enforce security on tasks with at least one of:
+        // #PermanentlyPrivate tag
+        // subtype 'security'
+        return new HeraldApplyTranscript($effect, $applied);
     }
+
+    // These policies are too-open and would allow anyone to view
+    // the protected task. We override these if someone tries to
+    // set them on a 'secure task'
+    $rejected_policies = array(
+      PhabricatorPolicies::POLICY_PUBLIC,
+      PhabricatorPolicies::POLICY_USER,
+      'obj.subscriptions.subscribers',
+      'obj.project.members',
+      'obj.maniphest.author',
+    );
+    $forced_policies = array();
+
 
     $project_phids = array();
-    $projects = WMFSecurityPolicy::getProjectByName(array('security', 'Security-Team'));
-    $project = WMFSecurityPolicy::getSecurityProjectForTask($task);
-    if ($project instanceof PhabricatorProject) {
-      $projects[] = $project;
-    }
+    $projects = WMFSecurityPolicy::getProjectByName('security');
+
     foreach($projects as $project) {
       $phid = $project->getPHID();
       $project_phids[$phid] = $phid;
     }
+
     $project_phids = array_values($project_phids);
     phlog($task->getViewPolicy());
     // check rejected policies first
@@ -125,7 +125,9 @@ class SecurityPolicyEnforcerAction extends HeraldAction {
         ->setTransactionType(PhabricatorTransactions::TYPE_EDIT_POLICY)
         ->setNewValue($edit_policy->getPHID()));
       $applied = true;
-    } else if (!empty($forced_policies)) {
+    }
+
+    if (!empty($forced_policies)) {
       foreach ($forced_policies as $type=>$policy) {
         $adapter->queueTransaction(id(new ManiphestTransaction())
           ->setTransactionType($type)
@@ -149,7 +151,5 @@ class SecurityPolicyEnforcerAction extends HeraldAction {
       $applied,
       pht('Reset security settings'));
   }
-
-
 
 }
