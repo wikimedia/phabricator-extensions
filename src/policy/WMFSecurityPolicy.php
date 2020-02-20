@@ -40,7 +40,7 @@ final class WMFSecurityPolicy
       case 'sensitive':
         return WMFSecurityPolicy::getProjectByName('WMF-NDA');
       case 'security-bug':
-        return WMFSecurityPolicy::getProjectByName('security');
+        return WMFSecurityPolicy::getProjectByName('acl*security');
       case 'ops-access-request':
         return WMFSecurityPolicy::getProjectByName('SRE-Access-Requests');
       default:
@@ -193,7 +193,8 @@ final class WMFSecurityPolicy
     if ($user_phid == $author_phid) {
       return true;
     }
-    $projects = self::getProjectByName(["Trusted-Contributors", "WMF-NDA", "acl*sre-team"], $user, true);
+    $trusted_project_names = ["Trusted-Contributors", "WMF-NDA", "acl*sre-team", "acl*security"];
+    $projects = self::getProjectByName($trusted_project_names, $user, true);
 
     foreach ($projects as $proj) {
       try {

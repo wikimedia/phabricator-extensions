@@ -110,11 +110,13 @@ final class WMFEscalateTaskController extends PhabricatorController {
       $comment_template = $template->getApplicationTransactionCommentObject();
 
       $project_phids = array();
-      $projects = WMFSecurityPolicy::getProjectByName(array('security', 'Security-Team'));
+      $projects = WMFSecurityPolicy::getProjectByName(['security', 'Security-Team']);
+      $security_project  = WMFSecurityPolicy::getProjectByName('acl*security');
+
       foreach($projects as $project) {
         $project_phids[] = $project->getPHID();
       }
-      $security_project  = WMFSecurityPolicy::getProjectByName('security');
+
       $view_policy = WMFSecurityPolicy::createCustomPolicy(
         $task,
         $task->getAuthorPHID(),

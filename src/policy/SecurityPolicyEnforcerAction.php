@@ -95,7 +95,8 @@ class SecurityPolicyEnforcerAction extends HeraldAction {
 
 
     $project_phids = array();
-    $projects = WMFSecurityPolicy::getProjectByName('security');
+    $security_project  = WMFSecurityPolicy::getProjectByName('acl*security');
+    $projects = WMFSecurityPolicy::getProjectByName(['security', 'Security-Team']);
 
     foreach($projects as $project) {
       $phid = $project->getPHID();
@@ -113,7 +114,7 @@ class SecurityPolicyEnforcerAction extends HeraldAction {
       $view_policy = WMFSecurityPolicy::createCustomPolicy(
         $task,
         $task->getAuthorPHID(),
-        $project_phids,
+        [$security_project->getPHID()],
         $include_subscribers);
 
       $edit_policy = $view_policy;
