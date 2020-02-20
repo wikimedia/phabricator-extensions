@@ -218,7 +218,7 @@ DETAIL;
 Escalating will restrict visibility of $monogram so that only the following
 people can view it:
 
-* {icon users} Members of the #security team.
+* {icon users} Members of #acl_security.
 * {icon plus-circle} Subscribers to the task.
 * {icon user} Author of the task.
 
