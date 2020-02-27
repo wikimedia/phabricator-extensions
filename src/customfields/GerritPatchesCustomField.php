@@ -71,7 +71,7 @@ class GerritPatchesCustomField
       // lock the cache by setting it to 1 while https request is pending, timeout in 10 seconds
       $cache->setKey($cachekey, "loading", 10);
       $changes = HTTPSFuture::loadContent(
-        'https://gerrit.wikimedia.org/r/changes/?q=bug:T'.$taskid);
+        'https://gerrit.wikimedia.org/r/changes/?q=bug:T'.$taskid.'&o=LABELS');
       if ($changes === false) {
         $cache->setKey($cachekey, "", 10);
         // http fetch failed, don't cache or display anything.
@@ -96,8 +96,11 @@ class GerritPatchesCustomField
       } else if ($status == 'ABANDONED') {
         $item->setIcon(PHUIStatusItemView::ICON_REJECT, 'red', pht('Abandoned'));
       } else {
-        if ($change['has_review_started']) {
-          $item->setIcon(PHUIStatusItemView::ICON_CLOCK, 'blue', pht('Awaiting Review'));
+        if (isset($change['labels']['Code-Review']['value'])
+          && $change['labels']['Code-Review']['value']  < 0) {
+            $item->setIcon(PHUIStatusItemView::ICON_MINUS, 'red', pht('Blocked on Code Review'));
+        } else if ($change['has_review_started']) {
+          $item->setIcon(PHUIStatusItemView::ICON_CLOCK, 'blue', pht('Code Review Started'));
         } else {
           $item->setIcon(PHUIStatusItemView::ICON_ADD, 'blue', pht('New'));
         }
