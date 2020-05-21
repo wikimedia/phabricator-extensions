@@ -2,7 +2,8 @@
 
 class GerritPatchesCustomField
  extends ManiphestCustomField
- {
+{
+  private $task_override = false; //"140007";
 
   public function getFieldKey() {
     return 'wmf:patches';
@@ -40,15 +41,30 @@ class GerritPatchesCustomField
   }
 
   public function shouldAppearInPropertyView() {
-    $task = $this->getObject();
-    if (!$task) {
+
+    $taskid = $this->getTaskId();
+    if (!$taskid) {
       return false;
     }
-    return !empty($this->getGerritPatchesForTask($task->getId()));
+
+    return !empty($this->getGerritPatchesForTask($taskid));
+  }
+
+  protected function getTaskId() {
+    if ($this->task_override &&
+    PhabricatorEnv::getEnvConfig('phabricator.developer-mode')) {
+      return $this->task_override;
+    } else {
+      $task = $this->getObject();
+      if (!$task) {
+        return false;
+      }
+      return $task->getID();
+    }
   }
 
   public function renderPropertyViewLabel() {
-    return pht("Related Changes in Gerrit:");
+    pht("Related Changes in Gerrit:");
   }
 
   public function getStyleForPropertyView() {
@@ -56,8 +72,7 @@ class GerritPatchesCustomField
   }
 
   public function renderPropertyViewValue(array $handles) {
-    $obj = $this->getObject();
-    $taskid = $obj->getId();
+    $taskid = $this->getTaskId();
     return $this->getGerritPatchesForTask($taskid);
   }
 
@@ -73,6 +88,8 @@ class GerritPatchesCustomField
     $cache = PhabricatorCaches::getMutableCache();
     $cachekey = 'gerrit:patches:'.$taskid;
     $changes = $cache->getKey($cachekey, null);
+    $gerrit_url = "https://gerrit.wikimedia.org/r/changes/?q=bug:T$taskid&o=LABELS";
+    $gerrit_search = "https://gerrit.wikimedia.org/r/#/q/bug:T$taskid";
     if ($changes === "loading") {
       return ''; //data is being loaded by another request / process, avoid hammering gerrit
     } else if ($changes == null) {
@@ -81,7 +98,6 @@ class GerritPatchesCustomField
       // timeout the cache entry in 5 seconds
       $cache->setKey($cachekey, "loading", 5);
       // request the list of changes from gerrit with a 2 second timeout
-      $gerrit_url = "https://gerrit.wikimedia.org/r/changes/?q=bug:T$taskid&o=LABELS";
       $changes = HTTPSFuture::loadContent(
        $gerrit_url,
         2);
@@ -210,7 +226,34 @@ class GerritPatchesCustomField
     if (empty($rows)) {
       return '';
     }
-    return $changes_table;
+    $search_link = phutil_tag('a', ['href'=>$gerrit_search],
+      pht('Customize query in gerrit')
+    );
+    if (count($changes) > 10) {
+      require_celerity_resource('wikimedia-extensions-css');
+      $table_id = celerity_generate_unique_node_id();
+      $link_id = celerity_generate_unique_node_id();
+      $changes_div = phutil_tag('div', [
+        "id"=>$table_id,
+        "class" => "gerrit-patches-hidden",
+      ], $changes_table);
+
+      $toggle_link = javelin_tag('a', [
+          "id"=>$link_id,
+          "class" => "button button-grey",
+          "sigil"=> 'jx-toggle-class',
+          "meta"=> [
+            "map" => [
+              $table_id => "gerrit-patches-expanded",
+              $link_id => 'gerrit-button-hidden',
+            ]
+          ]
+            ], pht('Show related patches'));
+
+          return array($changes_div, $toggle_link, " ", $search_link );
+    }
+    return array($changes_table, $search_link );
+
   }
 
  }
