@@ -195,7 +195,7 @@ class ReleaseDetailsCustomField
 
   private function renderTrainDeployDetails($vars) {
     extract($vars);
-    $SWAT = "[[https://wikitech.wikimedia.org/wiki/SWAT_deploys|SWAT deployments]]";
+    $bp = "[[https://wikitech.wikimedia.org/wiki/Backport_windows|Backports]]";
     $tuesday = pht("Branch `%s` and deploy to %s Wikis.", $wmfnum, 'Group 0');
     $wednesday = pht("Deploy `%s` to %s Wikis.", $wmfnum, 'Group 1');
     $thursday = pht("Deploy `%s` to %s Wikis.", $wmfnum, 'all');
@@ -203,7 +203,7 @@ class ReleaseDetailsCustomField
     $forTheWeekOf = pht('This MediaWiki Train Deployment is scheduled for the week of');
     $howThisWorks = pht('How this works');
     $openSubtasksBlockDeployment = pht(
-      'Any open subtask(s) block the train from moving forward.' . 
+      'Any open subtask(s) block the train from moving forward.' .
       'This means no further deployments until the blockers are resolved.');
     $addBlockersAsSubtasks = pht(
       'Any serious bugs affecting `%s` should be added as subtasks beneath this one.',
@@ -218,7 +218,7 @@ class ReleaseDetailsCustomField
     $moreInfoLink = pht(
       'For more info about deployment blockers, see '.
       '[[ https://wikitech.wikimedia.org/wiki/Deployments/Holding_the_train | Holding the train ]].');
-    
+
     return <<<EOT
 =  {icon calendar} **$year** week **$week** {icon angle-right} {icon book} [[ https://www.mediawiki.org/wiki/Special:MyLanguage/MediaWiki_$major/$wmfnum | $major-$wmfnum Changes ]] {icon angle-right} {icon git} [[/source/mediawiki/history/wmf%252F$major.0-$wmfnum|wmf/$major.0-$wmfnum  ]]
 
@@ -226,7 +226,7 @@ $forTheWeekOf **$weekday, $month $monthday**:
 
 |**Monday $month $monthday**|**Tuesday, {$tue}**      | **Wednesday, {$wed}**   | **Thursday, {$thu}** | **Friday** |
 |---------------------------|-------------------------|-------------------------|----------------------|------------|
-|$SWAT only.                |$tuesday                 | $wednesday              | $thursday            | $friday    |
+|$bp only.                 |$tuesday              | $wednesday        | $thursday        | $friday    |
 
 * $scheduleLink
 
@@ -284,7 +284,7 @@ EOT;
     $endOfSeries = $this->getEndOfSeries(
       join('.', array($v[0],$v[1],$v[2])),
       'DESC', $indexes, $conn, $storage);
-    
+
     if ($endOfSeries == $version) {
       $vnext = $v[1]+1;
       $next = "$v[0].$vnext.$v[2].1";
