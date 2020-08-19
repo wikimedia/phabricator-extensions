@@ -220,7 +220,7 @@ class ReleaseDetailsCustomField
       '[[ https://wikitech.wikimedia.org/wiki/Deployments/Holding_the_train | Holding the train ]].');
 
     return <<<EOT
-=  {icon calendar} **$year** week **$week** {icon angle-right} {icon book} [[ https://www.mediawiki.org/wiki/Special:MyLanguage/MediaWiki_$major/$wmfnum | $major-$wmfnum Changes ]] {icon angle-right} {icon git} [[/source/mediawiki/history/wmf%252F$major.0-$wmfnum|wmf/$major.0-$wmfnum  ]]
+=  {icon calendar} **$year** week **$week** {icon angle-right} {icon book} [[ https://www.mediawiki.org/wiki/Special:MyLanguage/MediaWiki_$major/$wmfnum | $major-$wmfnum Changes ]] {icon angle-right} {icon git} [[/source/mediawiki/history/wmf%252F$major.0-$wmfnum/|wmf/$major.0-$wmfnum  ]]
 
 $forTheWeekOf **$weekday, $month $monthday**:
 
