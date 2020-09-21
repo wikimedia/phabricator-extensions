@@ -34,6 +34,7 @@ phutil_register_library_map(array(
     'PhutilMediaWikiAuthAdapter' => 'src/oauth/PhutilMediaWikiAuthAdapter.php',
     'PolicyQueryConduitAPIMethod' => 'src/conduit/PolicyQueryConduitAPIMethod.php',
     'ProjectBurnupGraphProfileMenuItem' => 'src/panel/ProjectBurnupGraphProfileMenuItem.php',
+    'ProjectMetrics' => 'src/reporting/ProjectMetrics.php',
     'ProjectOpenTasksProfileMenuItem' => 'src/panel/ProjectOpenTasksProfileMenuItem.php',
     'ReleaseDetailsCustomField' => 'src/customfields/ReleaseDetailsCustomField.php',
     'RollbackTransactionsWorkflow' => 'src/workflow/RollbackTransactionsWorkflow.php',
