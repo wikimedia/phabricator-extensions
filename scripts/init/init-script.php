@@ -12,17 +12,10 @@ function init_script(array $options = array())
     $include_path . PATH_SEPARATOR . $rootdir
   );
 
-  @include_once 'libphutil/scripts/__init_script__.php';
-
-  if (!@constant('__LIBPHUTIL__')) {
-    echo "ERROR: Unable to load libphutil. Update your PHP 'include_path' to " .
-      "include the parent directory of libphutil/.\n";
-    exit(1);
-  }
+  @include_once 'phabricator/scripts/init/init-script.php';
 
   $root = dirname(__FILE__) . '/../..';
   phutil_load_library($root);
-
   phutil_load_library('arcanist/src');
   phutil_load_library('phabricator/src');
 
