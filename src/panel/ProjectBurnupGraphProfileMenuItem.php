@@ -37,7 +37,7 @@ final class ProjectBurnupGraphProfileMenuItem
     $item = $this->newItemView()
       ->setUri($uri)
       ->setName($this->getDisplayName($config))
-      ->setIcon('fa-anchor')
+      ->setIcon('fa-line-chart')
       ->setTooltip($this->getLinkTooltip($config));
 
     return array(
