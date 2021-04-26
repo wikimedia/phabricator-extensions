@@ -203,7 +203,7 @@ class ReleaseDetailsCustomField
     $forTheWeekOf = pht('This MediaWiki Train Deployment is scheduled for the week of');
     $howThisWorks = pht('How this works');
     $openSubtasksBlockDeployment = pht(
-      'Any open subtask(s) block the train from moving forward.' .
+      'Any open subtask(s) block the train from moving forward. ' .
       'This means no further deployments until the blockers are resolved.');
     $addBlockersAsSubtasks = pht(
       'Any serious bugs affecting `%s` should be added as subtasks beneath this one.',
@@ -212,6 +212,10 @@ class ReleaseDetailsCustomField
       'If something is serious enough to warrant a rollback then you should bring it to the attention of deployers ' .
       'on the [[ https://www.mediawiki.org/wiki/MediaWiki_on_IRC | #wikimedia-operations IRC channel ]].'
     );
+    $riskyChanges = pht(
+        'If you have a risky change in this week\'s train add a comment ' .
+        'to this task using the ' .
+        '{icon train spin}{icon fire color=red} [[ https://wikitech.wikimedia.org/wiki/Deployments/Risky_change_template | Risky patch template ]]');
     $scheduleLink = pht('See https://wikitech.wikimedia.org/wiki/Deployments for full schedule.');
     $subtaskLink = pht('Use [[%s|this form]] to create one.', "/maniphest/task/edit/form/46/?parent=$taskid");
     $relatedLinks = pht('Related Links');
@@ -235,12 +239,15 @@ $forTheWeekOf **$weekday, $month $monthday**:
 ** $subtaskLink
 * $openSubtasksBlockDeployment
 * $alertDevelopersForRollback
+* $riskyChanges
 * $moreInfoLink
 
 ----
 == {icon link} $relatedLinks ==
+* {icon thermometer-1} [[ https://versions.toolforge.org/ | Train status ]]
 * {icon map-marker} [[https://www.mediawiki.org/wiki/MediaWiki_$major/Roadmap|MediaWiki $major/Roadmap]]
 * {icon code-fork} [[/source/mediawiki/compare/?head=wmf%2F$major.0-$wmfnum&against=master|Commits cherry-picked to $major.0-$wmfnum ]]
+* {icon snowflake-o} [[ https://wikitech.wikimedia.org/wiki/Deployments/Train_vs_backport | Backports vs train deployment ]]
 
 == {icon arrows-h} Other Deployments ==
 EOT;
