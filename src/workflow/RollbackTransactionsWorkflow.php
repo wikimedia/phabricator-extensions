@@ -70,7 +70,7 @@ extends WikimediaCLIWorkflow
             'param' => 'OFFSET',
             'default' => 0,
             'help' => pht(
-              'Skip OFFSET rows before processing the remaining tranactions.'
+              'Skip OFFSET rows before processing the remaining transactions.'
             ),
           ),
           array(
