@@ -270,8 +270,8 @@ final class PhabricatorMediaWikiAuthProvider
   protected function getContentSecurityPolicyFormActions() {
 
     $csp_actions = $this->getAdapter()->getContentSecurityPolicyFormActions();
-    $uri = new phutilURI($csp_actions[0]);
-    $mobile_uri = new phutilURI($uri);
+    $uri = new PhutilURI($csp_actions[0]);
+    $mobile_uri = new PhutilURI($uri);
     $domain = preg_replace('/^www\./', 'm.', $uri->getDomain());
     $mobile_uri->setDomain($domain);
     if ((string)$uri != (string)$mobile_uri) {
